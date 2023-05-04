@@ -7,6 +7,7 @@ const asyncHandler = require('express-async-handler');
 const createDepartment = asyncHandler(async (req, res) => {
   const { name } = req.body;
   const department = await Department.create({
+    code,
     name,
   });
 
@@ -63,6 +64,7 @@ const updateDepartmentById = asyncHandler(async (req, res) => {
 
   if (department) {
     // Check which fields were sent in the request else just keep them the same
+    department.code = req.body.code || department.code;
     department.name = req.body.name || department.name;
 
     const categoryUp = await department.save();
