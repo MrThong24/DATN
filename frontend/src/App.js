@@ -20,6 +20,7 @@ import EmployeeId from "./admin/pages/PageEmployee/PageDetailEmployee";
 import PageDepartment from "./admin/pages/PageDepartment/PageDepartment";
 import PageEmployee from "./admin/pages/PageEmployee/PageEmployee";
 import PageDetailEmployee from "./admin/pages/PageEmployee/PageDetailEmployee";
+import { ToastContainer } from "react-bootstrap";
 // import history from "./utils/history";
 
 const SignIn = React.lazy(() => import("./admin/pages/SignIn"));
