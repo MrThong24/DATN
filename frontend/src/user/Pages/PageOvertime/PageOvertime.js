@@ -4,7 +4,7 @@ import { Button, Form, Input, Select, DatePicker } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import LayoutPage from "../../layout/LayoutPage";
 import "../../../styles/general.css";
-
+import apiOvertime from "../../../api/apiOvertime";
 const onChange = (date, dateString) => {
   console.log(date, dateString);
 };
@@ -21,16 +21,31 @@ const handleChangeOvertimeProject = (value) => {
   console.log(`selected ${value}`);
 };
 
+const onFinish = async (values) => {
+  try {
+    await apiOvertime.addOvertime(values).then((data) => {
+      // apiOvertime.().then((res) => {
+      //   setDataAPI(res);
+      // });
+      // form.resetFields();
+      // notifySuccess();
+      console.log(data);
+    });
+  } catch (error) {
+    // notifyError();
+  }
+};
+
 const PageOvertime = () => {
   return (
     <LayoutPage title="Đăng ký tăng ca">
-      <Form layout="vertical" className="row-col">
+      <Form layout="vertical" className="row-col" onFinish={onFinish}>
         <Row>
           <Col md={4}>
             <Form.Item
               className="username label-group_form"
               label="Tên nhân viên"
-              name="overtime_name"
+              name="name_employee"
               rules={[
                 {
                   required: true,
@@ -49,7 +64,7 @@ const PageOvertime = () => {
             <Form.Item
               className="username label-group_form"
               label="Ngày đăng ký tăng ca"
-              name="overtime_date"
+              name="registration_date"
               rules={[
                 {
                   required: true,
@@ -69,7 +84,7 @@ const PageOvertime = () => {
             <Form.Item
               className="username label-group_form"
               label="Tên dự án"
-              name="overtime_project"
+              name="name_project"
               rules={[
                 {
                   required: true,
@@ -96,7 +111,7 @@ const PageOvertime = () => {
             <Form.Item
               className="username label-group_form"
               label="Thời gian bắt đầu"
-              name="overtime_startDate"
+              name="date_start"
               rules={[
                 {
                   required: true,
@@ -116,7 +131,7 @@ const PageOvertime = () => {
             <Form.Item
               className="username label-group_form"
               label="Thời gian kết thúc"
-              name="overtime_endDate"
+              name="date_end"
               rules={[
                 {
                   required: true,
@@ -136,12 +151,11 @@ const PageOvertime = () => {
             <Form.Item
               className="username label-group_form"
               label="Số điện thoại"
-              name="overtime_phone"
+              name="phone"
               rules={[
                 {
                   required: true,
                   message: "Vui lòng nhập số điện thoại !",
-                  type: "date",
                 },
               ]}
             >
@@ -157,7 +171,7 @@ const PageOvertime = () => {
             <Form.Item
               className="username label-group_form"
               label="Lý do tăng ca"
-              name="overtime_reason"
+              name="content"
               rules={[
                 {
                   required: true,

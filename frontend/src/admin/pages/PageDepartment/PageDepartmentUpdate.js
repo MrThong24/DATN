@@ -1,13 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import apiDepartment from "../../../api/apiDepartment";
-import { Card, Col, Row } from "@themesberg/react-bootstrap";
-import { Button, Form, Input, Modal, Table } from "antd";
-import React, { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router";
+import { Col, Row } from "@themesberg/react-bootstrap";
+import { Button, Form, Input } from "antd";
+import React, { useEffect } from "react";
 
 const PageDepartmentUpdate = ({ idUpdate, onClose }) => {
   const [form] = Form.useForm();
-  const { id } = useParams();
-  const [dataAPI, setDataAPI] = useState(null);
+
+  /* START event call api detail department */
   useEffect(() => {
     async function fetchData(idUpdate) {
       const data = await apiDepartment.getDepartmentId(idUpdate);
@@ -18,14 +18,15 @@ const PageDepartmentUpdate = ({ idUpdate, onClose }) => {
       fetchData(idUpdate);
     }
   }, [idUpdate]);
-  console.log(dataAPI);
+  /* START event call api detail department */
+
+  /* START event call api update department */
   const onFinish = async (values) => {
     await apiDepartment.editDepartmentById(idUpdate, values).then((data) => {
-      console.log(data);
       onClose();
     });
   };
-
+  /* END event call api update department */
   return (
     <>
       <h5 className="mb-4">Tạo mới phòng ban</h5>

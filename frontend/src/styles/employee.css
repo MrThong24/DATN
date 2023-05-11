@@ -1,0 +1,17 @@
+.profileCover {
+  object-fit: cover;
+  width: 10rem;
+  height: 10rem;
+  border-radius: 50%;
+  margin: auto;
+  margin-top: "60px";
+  border: "2px solid #cccccc";
+  display: inline-block;
+}
+.profileCoverLabel {
+  cursor: pointer;
+  margin-left: 16px;
+}
+.profileCover:hover .profileCoverLabel {
+  display: block;
+}

@@ -4,91 +4,30 @@ import { Card, Col, Row } from "@themesberg/react-bootstrap";
 import { Button, Form, Input, Modal, Table } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import "../../../styles/general.css";
-import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 import PageDepartmentUpdate from "./PageDepartmentUpdate";
+import "../../../styles/general.css";
+import "react-toastify/dist/ReactToastify.css";
 
 const PageDepartment = () => {
   const [dataAPI, setDataAPI] = useState(null);
 
-  const notifySuccessUpdate = () => {
-    toast.success("Chỉnh sửa phòng bang thành công!", {
-      position: "top-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-  };
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const notifySuccess = () => {
-    toast.success(" Tạo mới phòng bang thành công!", {
-      position: "top-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-  };
+  const [isModalOpenUpdate, setIsModalOpenUpdate] = useState(false);
 
-  const notifyDeleteSuccess = () => {
-    toast.success(" Xóa phòng bang thành công!", {
-      position: "top-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-  };
+  const [idUpdate, setIdUpdate] = useState("");
 
-  const notifyError = () => {
-    toast.error(" Tạo mới phòng bang thất bại!", {
-      position: "top-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-  };
+  const [form] = Form.useForm();
 
-  useEffect(() => {
-    async function fetchData() {
-      const data = await apiDepartment.getAllDepartment();
-      setDataAPI(data);
-    }
-    fetchData();
-  }, []);
-
-  const data = useMemo(() => {
-    if (dataAPI?.data) {
-      return dataAPI?.data?.map((item, index) => ({
-        key: item._id,
-        code_department: item.code,
-        name_department: item.name,
-      }));
-    }
-    return [];
-  }, [dataAPI]);
+  const onChange = (pagination, filters, sorter, extra) => {};
 
   const columns = [
     {
       title: "Mã phòng ban",
       dataIndex: "code_department",
       sorter: {
-        compare: (a, b) => a.name_department.localeCompare(b.name_department),
+        compare: (a, b) => a.code_department.localeCompare(b.code_department),
       },
     },
     {
@@ -98,7 +37,6 @@ const PageDepartment = () => {
         compare: (a, b) => a.name_department.localeCompare(b.name_department),
       },
     },
-
     {
       title: "Action",
       dataIndex: "",
@@ -137,28 +75,10 @@ const PageDepartment = () => {
     },
   ];
 
-  const handleDeleteDepartment = (id) => () => {
-    try {
-      apiDepartment.deleteDepartmentId(id).then(() => {
-        notifyDeleteSuccess();
-        apiDepartment.getAllDepartment().then((res) => {
-          setDataAPI(res);
-        });
-      });
-    } catch (error) {}
-  };
-
-  const onChange = (pagination, filters, sorter, extra) => {
-    console.log("params", pagination, filters, sorter, extra);
-  };
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalOpenUpdate, setIsModalOpenUpdate] = useState(false);
-  const [idUpdate, setIdUpdate] = useState("");
-
   const showModal = () => {
     setIsModalOpen(true);
   };
+
   const showModalUpdate = (id) => () => {
     setIsModalOpenUpdate(true);
     setIdUpdate(id);
@@ -174,6 +94,7 @@ const PageDepartment = () => {
     setIsModalOpenUpdate(false);
     setIdUpdate("");
   };
+
   const handleSaveClose = () => {
     setIsModalOpen(false);
     setIsModalOpenUpdate(false);
@@ -185,8 +106,94 @@ const PageDepartment = () => {
     });
   };
 
-  const [form] = Form.useForm();
+  /* START event notify */
+  const notifySuccessUpdate = () => {
+    toast.success("Chỉnh sửa phòng bang thành công!", {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+  const notifySuccess = () => {
+    toast.success(" Tạo mới phòng bang thành công!", {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+  const notifyDeleteSuccess = () => {
+    toast.success(" Xóa phòng bang thành công!", {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+  const notifyError = () => {
+    toast.error(" Tạo mới phòng bang thất bại!", {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+  /* END event notify */
 
+  /* START event call api get all department */
+  useEffect(() => {
+    async function fetchData() {
+      const data = await apiDepartment.getAllDepartment();
+      setDataAPI(data);
+    }
+    fetchData();
+  }, []);
+  /* END event call api get all department */
+
+  /* START event change api */
+  const data = useMemo(() => {
+    if (dataAPI?.data) {
+      return dataAPI?.data?.map((item, index) => ({
+        key: item._id,
+        code_department: item.code,
+        name_department: item.name,
+      }));
+    }
+    return [];
+  }, [dataAPI]);
+  /* END event change api */
+
+  /* START event call api delete Department */
+  const handleDeleteDepartment = (id) => () => {
+    try {
+      apiDepartment.deleteDepartmentId(id).then(() => {
+        notifyDeleteSuccess();
+        apiDepartment.getAllDepartment().then((res) => {
+          setDataAPI(res);
+        });
+      });
+    } catch (error) {}
+  };
+  /* END event call api delete Department */
+
+  /* START event call api create Department */
   const onFinish = async (values) => {
     try {
       const data = await apiDepartment.addDepartment(values);
@@ -200,7 +207,7 @@ const PageDepartment = () => {
       notifyError();
     }
   };
-
+  /* END event call api create Department */
   return (
     <Card border="light" className="bg-white shadow-sm mb-4 mt-5">
       <Card.Body>
