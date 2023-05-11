@@ -24,6 +24,8 @@ import {
 } from "@themesberg/react-bootstrap";
 import NOTIFICATIONS_DATA from "../data/notifications";
 import Profile3 from "../../assets/img/team/profile-picture-3.jpg";
+import { logout } from "../../actions/userActions";
+import { useDispatch } from "react-redux";
 
 const Navbarr = () => {
   const [notifications, setNotifications] = useState(NOTIFICATIONS_DATA);
@@ -66,6 +68,7 @@ const Navbarr = () => {
       </ListGroup.Item>
     );
   };
+  const dispatch = useDispatch();
 
   return (
     <Navbar variant="dark" expanded className="ps-0 pe-2 pb-0">
@@ -130,7 +133,10 @@ const Navbarr = () => {
                   </div>
                 </div>
               </Dropdown.Toggle>
-              <Dropdown.Menu className="user-dropdown dropdown-menu-right mt-2">
+              <Dropdown.Menu
+                className="user-dropdown dropdown-menu-right mt-2"
+                onClick={() => dispatch(logout())}
+              >
                 <Dropdown.Item className="fw-bold">
                   <FontAwesomeIcon
                     icon={faSignOutAlt}

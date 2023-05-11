@@ -1,61 +1,175 @@
 import React, { useState } from "react";
 import { Card, Col, Row } from "@themesberg/react-bootstrap";
-
-import Profile1 from "../../../assets/img/team/profile-picture-1.jpg";
-import ProfileCover from "../../../assets/img/profile-cover.jpg";
 import { Button, DatePicker, Form, Input, Select } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
-
 import LayoutPage from "../../Layout/LayoutPage";
 import { useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-
-const PageNewEmployee = () => {
+import apiUser from "../../../api/apiUser";
+import apiDepartment from "../../../api/apiDepartment";
+import "../../../styles/employee.css";
+import { toast } from "react-toastify";
+const PageNewEmployee = ({ onClose }) => {
   const [image, setImage] = useState();
-  const [birthday, setBirthday] = useState("");
-  const onSubmit = (e) => {
-    console.log(e);
+  const [dataAPI, setDataAPI] = useState(null);
+  const [dataAll, setDataAll] = useState(null);
+  const [selectedPositionLabel, setSelectedPositionLabel] = useState("");
+  const [selectedGender, setSelectedGender] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("Đang hoạt động");
+
+  const handleChangeGender = (value, label) => {
+    setSelectedGender(label?.label);
   };
-  const handleChange = (value) => {
-    console.log(`selected ${value}`);
+  const handleChangeDepartment = (value) => {};
+  const handleChangePosition = (value, label) => {
+    setSelectedPositionLabel(label?.label);
   };
-  const handleChangeDepartment = (value) => {
-    console.log(`selected ${value}`);
-  };
-  const handleChangePosition = (value) => {
-    console.log(`selected ${value}`);
+  const onChangeDate = (date, dateString) => {
+    setSelectedDate(dateString);
   };
 
-  const onChange = (date, dateString) => {
-    console.log(date, dateString);
+  /* START event notify */
+  const notifySuccess = () => {
+    toast.success(" Tạo mới nhân viên thành công !", {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
   };
+  const notifyError = () => {
+    toast.error(" Tạo mới nhân viên thất bại!", {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+  /* END event notify */
+
+  /* START event sử lý image */
   useEffect(() => {
     return () => {
       image && URL.revokeObjectURL(image.preview);
     };
   });
   const handlePreviewAvatar = (e) => {
-    const file = e.target.files[0];
-    file.preview = URL.createObjectURL(file);
-    setImage(file);
+    const files = e.target.files;
+    if (files.length > 0) {
+      const file = files[0];
+      file.preview = URL.createObjectURL(file);
+      setImage(file);
+    }
   };
+  /* END even sử lý image */
+
+  /* START event call API get all Employee */
+  useEffect(() => {
+    async function fetchData() {
+      const data = await apiUser.getAllUser();
+      setDataAll(data);
+    }
+    fetchData();
+  }, []);
+  /* END event call API get all Employee */
+
+  /* START event call API get all Department */
+  useEffect(() => {
+    async function fetchData() {
+      const data = await apiDepartment.getAllDepartment();
+      setDataAPI(data);
+    }
+    fetchData();
+  }, []);
+  /* END event call API get all Department */
+
+  /* STAR tạo ra đổi tượng options lấy dữ liệu của dataDepartment */
+  const options = dataAPI?.data?.map((department) => ({
+    value: department?.code,
+    label: department?.name,
+  }));
+  /* END tạo ra đổi tượng options lấy dữ liệu của dataDepartment */
+
+  /* START even create new employee */
+  const onFinish = async (values) => {
+    const date = values.date_of_birth.format("YYYY-MM-DD");
+    values.date_of_birth = date;
+    values.department_employee = options[0]?.label;
+    values.position_employee = selectedPositionLabel;
+    values.gender_employee = selectedGender;
+    values.date_of_birth = selectedDate;
+    values.status = selectedStatus;
+    values.image = image;
+    const dataForm = new FormData();
+    Object.entries(values).forEach(([key, value]) => {
+      dataForm.append(key, value);
+    });
+    try {
+      await apiUser.createUser(dataForm).then((data) => {});
+      onClose();
+      notifySuccess();
+    } catch (error) {
+      notifyError();
+    }
+  };
+  /* END even create new employee */
+
   return (
     <LayoutPage title="Tạo mới nhân viên">
-      <Form layout="vertical" className="row-col">
+      <Form layout="vertical" className="row-col" onFinish={onFinish}>
         <Row className="mt-5">
           <Col xs={12} xl={8}>
+            <Col md={6}>
+              <Form.Item
+                className="username label-group_form"
+                label="Trạng thái"
+                name="status"
+              >
+                <Select
+                  className="selection-group_form"
+                  style={{ width: 120 }}
+                  placeholder="Trạng thái"
+                  defaultValue="Đang hoạt động"
+                  disabled
+                  options={[{ value: "1", label: "Đang hoạt động" }]}
+                />
+              </Form.Item>
+            </Col>
             <Row>
               <Col md={6}>
                 <Form.Item
                   className="username label-group_form"
                   label="Tên tài khoản"
-                  name="employee_account"
+                  name="account_employee"
                   rules={[
                     {
                       required: true,
                       message: "Vui lòng nhập tài khoản!",
                       type: "string",
+                    },
+                    {
+                      validator: async (rule, value) => {
+                        if (!value) {
+                          throw new Error("Vui lòng nhập tài khoản!");
+                        }
+
+                        const isAccountExist = dataAll?.data.some(
+                          (item) => item.account_employee === value
+                        );
+                        if (isAccountExist) {
+                          throw new Error("Tài khoản đã tồn tại!");
+                        }
+                      },
                     },
                   ]}
                 >
@@ -69,7 +183,7 @@ const PageNewEmployee = () => {
                 <Form.Item
                   className="username label-group_form"
                   label="Mật khẩu"
-                  name="employee_password"
+                  name="password_employee"
                   rules={[
                     {
                       required: true,
@@ -79,6 +193,7 @@ const PageNewEmployee = () => {
                 >
                   <Input.Password
                     placeholder="Password"
+                    autocomplete="new-password"
                     className="inputPass"
                     style={{ height: "38px" }}
                     iconRender={(visible) =>
@@ -98,7 +213,7 @@ const PageNewEmployee = () => {
                 <Form.Item
                   className="username label-group_form"
                   label="Mã nhân viên"
-                  name="employee_code"
+                  name="code_employee"
                   rules={[
                     {
                       required: true,
@@ -116,20 +231,19 @@ const PageNewEmployee = () => {
               <Col md={6}>
                 <Form.Item
                   className="username label-group_form"
-                  label="Ngày sinh"
-                  name="employee_birthday"
+                  label="Tên nhân viên"
+                  name="name_employee"
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng nhập ngày sinh",
-                      type: "date",
+                      message: "Vui lòng nhập Tên nhân viên!",
+                      type: "string",
                     },
                   ]}
                 >
-                  <DatePicker
-                    style={{ width: "100%", height: "38px" }}
-                    onChange={onChange}
-                    placeholder="Ngày sinh"
+                  <Input
+                    placeholder="Tên nhân viên"
+                    className="inputUser input-group_form"
                   />
                 </Form.Item>
               </Col>
@@ -139,7 +253,7 @@ const PageNewEmployee = () => {
                 <Form.Item
                   className="username label-group_form"
                   label="Tên phòng ban"
-                  name="employee_department"
+                  name="department_employee"
                   rules={[
                     {
                       required: true,
@@ -153,10 +267,7 @@ const PageNewEmployee = () => {
                     style={{ width: 120 }}
                     onChange={handleChangeDepartment}
                     placeholder="Phòng ban"
-                    options={[
-                      { value: "pb1", label: "Xây dựng" },
-                      { value: "pb2", label: "Điện" },
-                    ]}
+                    options={options}
                   />
                 </Form.Item>
               </Col>
@@ -164,7 +275,7 @@ const PageNewEmployee = () => {
                 <Form.Item
                   className="username label-group_form"
                   label="Chức vụ"
-                  name="employee_position"
+                  name="position_employee"
                   rules={[
                     {
                       required: true,
@@ -190,18 +301,18 @@ const PageNewEmployee = () => {
               <Col md={6}>
                 <Form.Item
                   className="username label-group_form"
-                  label="Tên nhân viên"
-                  name="employee_name"
+                  label="Địa chỉ thường trú"
+                  name="address_employee"
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng nhập tên!",
+                      message: "Vui lòng nhập địa chỉ thường trú!",
                       type: "string",
                     },
                   ]}
                 >
                   <Input
-                    placeholder="Tên nhân viên"
+                    placeholder="Địa chỉ thường trú"
                     className="inputUser input-group_form"
                   />
                 </Form.Item>
@@ -210,7 +321,7 @@ const PageNewEmployee = () => {
                 <Form.Item
                   className="username label-group_form"
                   label="Giới tính"
-                  name="employee_gender"
+                  name="gender_employee"
                   rules={[
                     {
                       required: true,
@@ -222,7 +333,7 @@ const PageNewEmployee = () => {
                   <Select
                     className="selection-group_form"
                     style={{ width: 120 }}
-                    onChange={handleChange}
+                    onChange={handleChangeGender}
                     placeholder="Giới tính"
                     options={[
                       { value: "male", label: "Nam" },
@@ -237,7 +348,7 @@ const PageNewEmployee = () => {
                 <Form.Item
                   className="username label-group_form"
                   label="Quê quán"
-                  name="employee_hometown"
+                  name="current_residence"
                   rules={[
                     {
                       required: true,
@@ -256,7 +367,7 @@ const PageNewEmployee = () => {
                 <Form.Item
                   className="username label-group_form"
                   label="Lương"
-                  name="employee_wage"
+                  name="wage_employee"
                   rules={[
                     {
                       required: true,
@@ -277,12 +388,20 @@ const PageNewEmployee = () => {
                 <Form.Item
                   className="username label-group_form"
                   label="CMND/CCCD"
-                  name="employee_CMND"
+                  name="cmnd_employee"
                   rules={[
                     {
                       required: true,
                       message: "Vui lòng nhập CMND/CCCD!",
-                      type: "string",
+                      validator: (_, value) => {
+                        const regex = /^[0-9\b]+$/; // kiểm tra giá trị nhập vào chỉ chứa số
+                        if (value && regex.test(value)) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(
+                          "Vui lòng nhập số và không chứa ký tự đặc biệt!"
+                        );
+                      },
                     },
                   ]}
                 >
@@ -296,57 +415,19 @@ const PageNewEmployee = () => {
                 <Form.Item
                   className="username label-group_form"
                   label="Điện thoại"
-                  name="employee_phone"
+                  name="phone_employee"
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng nhập số điện thoại!",
+                      message: "Vui lòng nhập số điện thoại và nhập đủ 10 số!",
+                      pattern: /^[0-9]{10}$/,
                       type: "string",
                     },
                   ]}
                 >
                   <Input
+                    maxLength={10}
                     placeholder="Điện thoại"
-                    className="inputUser input-group_form"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row>
-              <Col md={6}>
-                <Form.Item
-                  className="username label-group_form"
-                  label="Nơi ở hiện tại"
-                  name="employee_currentAcc"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập nơi ở hiện tại!",
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="Nơi ở hiện tại"
-                    className="inputUser input-group_form"
-                  />
-                </Form.Item>
-              </Col>
-              <Col md={6}>
-                <Form.Item
-                  className="username label-group_form"
-                  label="Địa chỉ thường trú"
-                  name="employee_permanentAddress"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập địa chỉ thường trú !",
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="Địa chỉ thường trú"
                     className="inputUser input-group_form"
                   />
                 </Form.Item>
@@ -369,6 +450,25 @@ const PageNewEmployee = () => {
                   <Input
                     placeholder="Thông tin liên hệ khẩn cấp"
                     className="inputUser input-group_form"
+                  />
+                </Form.Item>
+              </Col>
+              <Col md={6}>
+                <Form.Item
+                  className="username label-group_form"
+                  label="Ngày sinh"
+                  name="date_of_birth"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập ngày sinh",
+                      type: "date",
+                    },
+                  ]}
+                >
+                  <DatePicker
+                    style={{ width: "100%", height: "38px" }}
+                    onChange={onChangeDate}
                   />
                 </Form.Item>
               </Col>
@@ -407,24 +507,29 @@ const PageNewEmployee = () => {
                 onChange={handlePreviewAvatar}
               ></input>
               {image && (
-                <image
-                  style={{
-                    backgroundImage: `url(${image.preview})`,
-                    objectFit: "cover",
-                    width: "10rem",
-                    height: "10rem",
-                    borderRadius: "50%",
-                    margin: "auto",
-                    marginTop: "60px",
-                    border: "2px solid #cccccc",
-                  }}
-                  className="profile-cover"
-                />
+                <div style={{ marginTop: "60px" }}>
+                  <image
+                    style={{
+                      backgroundImage: `url(${image.preview})`,
+                    }}
+                    className="profileCover"
+                  />
+                  <label
+                    htmlFor="image_employee"
+                    style={{
+                      lineHeight: "11rem",
+                      cursor: "pointer",
+                      position: "absolute",
+                    }}
+                    className="profileCoverLabel"
+                  >
+                    Thay đổi
+                  </label>
+                </div>
               )}
 
               <Card.Body className="pb-5">
                 <Card.Title>Ảnh đại diện</Card.Title>
-                {/* <Card.Subtitle className="fw-normal">Chức vụ</Card.Subtitle> */}
               </Card.Body>
             </Card>
           </Col>
