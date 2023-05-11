@@ -5,7 +5,7 @@ const { Department } = require('../models');
 const asyncHandler = require('express-async-handler');
 
 const createDepartment = asyncHandler(async (req, res) => {
-  const { name } = req.body;
+  const { name, code } = req.body;
   const department = await Department.create({
     code,
     name,
@@ -16,7 +16,8 @@ const createDepartment = asyncHandler(async (req, res) => {
     res.status(201).json({
       status: 200,
       data: {
-        ...department,
+        name: department.name,
+        code: department.code,
       },
     });
   } else {
