@@ -1,12 +1,22 @@
 const express = require('express');
-const { createOvertime } = require('../controllers/overtime.controller');
+const {
+  createOvertime,
+  getAllOvertime,
+  getOvertimeById,
+  updateOvertime,
+  deleteOvertime,
+} = require('../controllers/overtime.controller');
 
 const router = express.Router();
 
-router.post('/', createOvertime);
-// router.get('/', getDepartment);
-// router.put('/:id', updateDepartmentById);
-// router.delete('/delete/:id', deleteDepartmentById);
-// router.get('/:id', getDepartmentById);
+router.post('/create', createOvertime);
+
+router.get('/all', getAllOvertime);
+
+router.get('/:id', getOvertimeById);
+
+router.put('/:id', updateOvertime);
+
+router.delete('/:id', deleteOvertime);
 
 module.exports = router;

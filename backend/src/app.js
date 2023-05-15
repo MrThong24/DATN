@@ -8,6 +8,7 @@ const compression = require('compression');
 const cors = require('cors');
 const httpStatus = require('http-status');
 const user = require('./routers/user.router');
+const project = require('./routers/project.router');
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.get('/', (req, res) => {
 app.use('/api/department', department);
 app.use('/api/overtime', overtime);
 app.use('/api/user', user);
+app.use('/api/project', project);
 app.use('/', express.static('public/upload'));
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {

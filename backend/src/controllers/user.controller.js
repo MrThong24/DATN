@@ -17,7 +17,10 @@ const authUser = asyncHandler(async (req, res) => {
         _id: user._id,
         name_employee: user.name_employee,
         account_employee: user.account_employee,
+        image: user.image,
         isAdmin: user.isAdmin,
+        status: user.status,
+        position_employee: user.position_employee,
         token: generateToken(user._id),
       },
     });
