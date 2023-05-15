@@ -1,33 +1,83 @@
 import { Button, Form, Input, Select, Upload } from "antd";
 import ImgCrop from "antd-img-crop";
-import { Card, Col, Row } from "@themesberg/react-bootstrap";
-import React, { useState } from "react";
+import { Col, Row } from "@themesberg/react-bootstrap";
+import React, { useEffect, useMemo, useState } from "react";
 import TextArea from "antd/es/input/TextArea";
-const OPTIONS = ["Điện", "Xây dựng"];
-const OPTIONSEMPLOYEE = ["Nhân viên 1", "Nhân viên 2"];
-const OPTIONSEMPLOYEEMANAGER = ["Quản lý 1", "Quản lý 2"];
+import apiUser from "../../../api/apiUser";
+import apiDepartment from "../../../api/apiDepartment";
 
 const PageNewProject = () => {
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [selectedItemsEmployee, setSelectedItemsEmployee] = useState([]);
-  const [selectedItemsEmployeeManager, setSelectedItemsEmployeeManager] =
-    useState([]);
-  const filteredOptions = OPTIONS.filter((o) => !selectedItems.includes(o));
-  const filteredOptionsEmployee = OPTIONSEMPLOYEE.filter(
-    (o) => !selectedItemsEmployee.includes(o)
+  const [dataEmployee, setDataEmployee] = useState([]);
+  const [dataDepartment, setDataDepartment] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState([]);
+  const handleSelectManagerProject = (value, label) => {};
+
+  /* START event call api all employee and all department */
+  useEffect(() => {
+    async function fetchData() {
+      const dataEmployee = await apiUser.getAllUser();
+      const dataDepartment = await apiDepartment.getAllDepartment();
+      setDataEmployee(dataEmployee?.data);
+      setDataDepartment(dataDepartment?.data);
+    }
+    fetchData();
+  }, []);
+  /* END event call api all employee */
+
+  const newDataStatus = dataEmployee?.filter(
+    (item) => item.status === "Đang hoạt động"
   );
 
-  const filteredOptionsEmployeeManager = OPTIONSEMPLOYEEMANAGER.filter(
-    (o) => !selectedItemsEmployeeManager.includes(o)
-  );
-  const [fileList, setFileList] = useState([
-    {
-      uid: "-1",
-      name: "image.png",
-      status: "done",
-      url: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    },
-  ]);
+  /* START event filter position_employee and set value position_employee in select */
+  const optionsEmployeePosition = useMemo(() => {
+    if (newDataStatus.length > 0) {
+      return newDataStatus
+        ?.filter((item) => item.position_employee === "Trưởng nhóm xây dựng")
+        .map((employee) => ({
+          value: employee?.code_employee,
+          label: employee?.name_employee,
+        }));
+    }
+    return [];
+  }, [newDataStatus]);
+  /* END event filter position_employee and set value position_employee in select */
+
+  /* START event filter position_department and set value position_department in select */
+  const handleChangeDepartment = (value, item) => {
+    setSelectedDepartment(item);
+  };
+  const departmentFormat = useMemo(() => {
+    if (dataDepartment.length > 0) {
+      return dataDepartment?.map((department) => ({
+        value: department?.code,
+        label: department?.name,
+      }));
+    }
+    return [];
+  }, [dataDepartment]);
+  /* END event filter position_department and set value position_department in select */
+
+  /* START event handle filter employee by department */
+  const dataEmployeesByDe = useMemo(() => {
+    if (selectedDepartment.length > 0) {
+      return newDataStatus
+        ?.filter((item) =>
+          selectedDepartment.some(
+            (itemDepartment) =>
+              itemDepartment.label === item.department_employee
+          )
+        )
+        .map((employee) => ({
+          value: employee?.code_employee,
+          label: employee?.name_employee,
+        }));
+    }
+    return [];
+  }, [newDataStatus, selectedDepartment]);
+  /* END event handle filter employee by department */
+
+  /* START event handle image  */
+  const [fileList, setFileList] = useState([]);
   const onChange = ({ fileList: newFileList }) => {
     setFileList(newFileList);
   };
@@ -45,6 +95,7 @@ const PageNewProject = () => {
     const imgWindow = window.open(src);
     imgWindow?.document.write(image.outerHTML);
   };
+  console.log(fileList);
   return (
     <div>
       <h5>Tạo mới công việc</h5>
@@ -72,28 +123,25 @@ const PageNewProject = () => {
           <Col md={6}>
             <Form.Item
               className="username label-group_form"
-              label="Quản lý nhóm"
+              label="Trưởng nhóm xây dựng"
               name="manager_project"
+              style={{ cursor: "pointer" }}
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng chọn Quản lý nhóm!",
+                  message: "Vui lòng chọn trưởng nhóm!",
                   type: "selector",
                 },
               ]}
             >
               <Select
                 mode="multiple"
-                placeholder="Chọn Quản lý nhóm"
-                value={selectedItems}
-                onChange={setSelectedItemsEmployeeManager}
+                placeholder="Chọn trưởng nhóm"
+                onChange={handleSelectManagerProject}
                 style={{
                   width: "100%",
                 }}
-                options={filteredOptionsEmployeeManager.map((item) => ({
-                  value: item,
-                  label: item,
-                }))}
+                options={optionsEmployeePosition}
               />
             </Form.Item>
           </Col>
@@ -136,15 +184,11 @@ const PageNewProject = () => {
               <Select
                 mode="multiple"
                 placeholder="Chọn phòng ban"
-                value={selectedItems}
-                onChange={setSelectedItems}
+                onChange={handleChangeDepartment}
                 style={{
                   width: "100%",
                 }}
-                options={filteredOptions.map((item) => ({
-                  value: item,
-                  label: item,
-                }))}
+                options={departmentFormat}
               />
             </Form.Item>
           </Col>
@@ -164,15 +208,10 @@ const PageNewProject = () => {
               <Select
                 mode="multiple"
                 placeholder="Chọn nhân viên"
-                value={selectedItemsEmployee}
-                onChange={setSelectedItemsEmployee}
                 style={{
                   width: "100%",
                 }}
-                options={filteredOptionsEmployee.map((item) => ({
-                  value: item,
-                  label: item,
-                }))}
+                options={dataEmployeesByDe}
               />
             </Form.Item>
           </Col>

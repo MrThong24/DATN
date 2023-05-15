@@ -23,9 +23,11 @@ const PageNewEmployee = ({ onClose }) => {
     setSelectedGender(label?.label);
   };
   const handleChangeDepartment = (value) => {};
+
   const handleChangePosition = (value, label) => {
     setSelectedPositionLabel(label?.label);
   };
+
   const onChangeDate = (date, dateString) => {
     setSelectedDate(dateString);
   };
@@ -43,6 +45,7 @@ const PageNewEmployee = ({ onClose }) => {
       theme: "light",
     });
   };
+
   const notifyError = () => {
     toast.error(" Tạo mới nhân viên thất bại!", {
       position: "top-right",

@@ -3,6 +3,7 @@ import SimpleBar from "simplebar-react";
 import { useLocation } from "react-router-dom";
 import { CSSTransition } from "react-transition-group";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { logout } from "../../actions/userActions";
 import {
   faSignOutAlt,
   faTimes,
@@ -14,6 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Nav, Badge, Image, Button, Navbar } from "@themesberg/react-bootstrap";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -75,7 +77,7 @@ const Sidebar = () => {
       </Nav.Item>
     );
   };
-
+  const dispatch = useDispatch();
   return (
     <>
       <Navbar
@@ -98,6 +100,34 @@ const Sidebar = () => {
           className={`collapse ${showClass} sidebar d-md-block bg-primary text-white`}
         >
           <div className="sidebar-inner px-4 pt-3">
+            <div className="user-card d-flex d-md-none align-items-center justify-content-between justify-content-md-center pb-4">
+              <div className="d-flex align-items-center">
+                <div className="user-avatar lg-avatar me-4">
+                  <Image
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8g1xgfONND3jpusoYg1XpV8o7gknHPTIMfA&usqp=CAU"
+                    className="card-img-top rounded-circle border-white"
+                  />
+                </div>
+                <div className="d-block">
+                  <h6>Admin</h6>
+                  <Button
+                    variant="secondary"
+                    size="xs"
+                    onClick={() => dispatch(logout())}
+                    className="text-dark"
+                  >
+                    <FontAwesomeIcon icon={faSignOutAlt} className="me-2" />{" "}
+                    Đăng xuất
+                  </Button>
+                </div>
+              </div>
+              <Nav.Link
+                className="collapse-close d-md-none"
+                onClick={onCollapse}
+              >
+                <FontAwesomeIcon icon={faTimes} />
+              </Nav.Link>
+            </div>
             <Nav className="flex-column pt-3 pt-md-0">
               <NavItem title="DMM Group" link="dashboard" />
               <NavItem title="Trang chủ" link="/dashboard" icon={faHouse} />

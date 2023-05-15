@@ -1,116 +1,113 @@
-import { Button, Modal, Table } from "antd";
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Button, Form, Modal, Table, Tag } from "antd";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Card, Col, Row } from "@themesberg/react-bootstrap";
+import apiOvertime from "../../../api/apiOvertime";
+import moment from "moment-timezone";
+
+import PageOvertimeUpdate from "./PageOvertimeUpdate";
+import Search from "antd/es/transfer/search";
 
 const Overtime = () => {
+  const [dataAPI, setDataAPI] = useState(null);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [idUpdate, setIdUpdate] = useState("");
+
+  const [valueSearch, setValueSearch] = useState("");
+
+  /* START columns table */
+  const onChange = (pagination, filters, sorter, extra) => {};
   const columns = [
     {
-      title: "Tên nhân viên",
-      dataIndex: "name",
-    },
-    {
-      title: "Tên dự án",
-      dataIndex: "name_profile",
+      title: "Mã nhân viên",
+      dataIndex: "account_employee",
       sorter: {
-        compare: (a, b) => a.name_profile - b.name_profile,
+        compare: (a, b) => a.account_employee - b.account_employee,
         multiple: 3,
       },
     },
     {
-      title: "Số điện thoại",
-      dataIndex: "phone",
+      title: "Tên nhân viên",
+      dataIndex: "name_employee",
       sorter: {
-        compare: (a, b) => a.phone - b.phone,
+        compare: (a, b) => a.name_employee - b.name_employee,
+        multiple: 3,
+      },
+    },
+    {
+      title: "Ngày bắt đầu",
+      dataIndex: "date_start",
+      sorter: {
+        compare: (a, b) => a.date_start - b.date_start,
+        multiple: 3,
+      },
+    },
+    {
+      title: "Ngày kết thúc",
+      dataIndex: "date_end",
+      sorter: {
+        compare: (a, b) => a.date_end - b.date_end,
         multiple: 2,
       },
     },
     {
       title: "Trạng thái",
-      dataIndex: "archive",
-      render: (archive) => (
-        <span
-          style={{
-            color: archive === "Duyệt" ? "green" : "red",
-            fontWeight: 600,
-          }}
-        >
-          {archive}
-        </span>
-      ),
+      dataIndex: "isActive",
+      filters: [
+        {
+          text: "Đã duyệt",
+          value: true,
+        },
+        {
+          text: "Chưa duyệt",
+          value: false,
+        },
+      ],
+      onFilter: (value, record) => record.isActive === value,
+      render: (_, { isActive }) => {
+        let color = isActive === true ? "green" : "volcano";
+        return (
+          <Tag color={color} key={isActive}>
+            {isActive === "True" ? "Đã duyệt" : "Chưa duyệt"}
+          </Tag>
+        );
+      },
+      defaultFilteredValue: ["false"],
     },
-
     {
       title: "Action",
       dataIndex: "",
       key: "x",
-      render: () => (
-        <>
-          <Link
-            style={{
-              color: "white",
-              fontWeight: "600",
-              borderRadius: "6px",
-              backgroundColor: "rgb(18 34 139 / 92%)",
-              padding: "5px 18px",
-              marginRight: "10px",
-            }}
-            onClick={showModal}
-          >
-            Chi tiết
-          </Link>
-          <Link
-            style={{
-              color: "white",
-              fontWeight: "600",
-              borderRadius: "6px",
-              backgroundColor: "#e00101",
-              padding: "5px 18px",
-            }}
-            // onClick={showModalDelete}
-          >
-            Xóa
-          </Link>
-        </>
-      ),
+      render: (_, item) => {
+        return (
+          <div style={{ display: "flex" }}>
+            <div
+              onClick={showModalDetails(item.key)}
+              style={{
+                color: "white",
+                fontWeight: "600",
+                borderRadius: "6px",
+                backgroundColor: "rgb(18 34 139 / 92%)",
+                padding: "5px 18px",
+                marginRight: "10px",
+                cursor: "pointer",
+              }}
+            >
+              Chi tiết
+            </div>
+          </div>
+        );
+      },
     },
   ];
-  const data = [
-    {
-      key: "1",
-      name: "John Brown",
-      phone: "0254848653",
-      name_profile: "Xây cầu cống",
-      archive: "Duyệt",
-    },
-    {
-      key: "2",
-      name: "Jim Green",
-      phone: "0534848653",
-      name_profile: "Thi công công trình Hà Nội",
-      archive: "Chưa duyệt",
-    },
-    {
-      key: "3",
-      name: "Joe Black",
-      phone: "0231423242",
-      name_profile: "Xây cầu cống",
-      archive: "Chưa duyệt",
-    },
-    {
-      key: "4",
-      name: "Jim Red",
-      phone: "032414235",
-      name_profile: "Thi công công trình Hà Nội",
-      archive: "Duyệt",
-    },
-  ];
-  const onChange = (pagination, filters, sorter, extra) => {
-    console.log("params", pagination, filters, sorter, extra);
-  };
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const showModal = () => {
+  /* END columns table */
+
+  /* START event show model */
+  const showModalDetails = (id) => () => {
     setIsModalOpen(true);
+    setIdUpdate(id);
   };
   const handleOk = () => {
     setIsModalOpen(false);
@@ -118,14 +115,69 @@ const Overtime = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
+  /* END event show model */
+
+  /* START event handle close when save */
+  const handleSaveClose = () => {
+    apiOvertime.getAllOvertime().then((res) => {
+      setDataAPI(res);
+    });
+    setIsModalOpen(false);
+  };
+  /* END event handle close when save */
+
+  /* START event call api to pass table  */
+  useEffect(() => {
+    async function fetchData() {
+      const data = await apiOvertime.getAllOvertime();
+      setDataAPI(data);
+    }
+    fetchData();
+    console.log(data);
+  }, []);
+  const data = useMemo(() => {
+    if (dataAPI) {
+      return dataAPI?.data?.overtimes?.map((item, index) => ({
+        key: item._id,
+        name_employee: item?.name_employee?.name_employee,
+        registration_date: moment(item.registration_date).format("DD/MM/YYYY"),
+        date_start: moment(item.date_start).format("DD/MM/YYYY"),
+        date_end: moment(item.date_end).format("DD/MM/YYYY"),
+        isActive: item.isActive,
+        account_employee: item?.name_employee?.account_employee,
+      }));
+    }
+    return [];
+  }, [dataAPI]);
+  /* END event call api to pass table  */
+
+  /* START event search */
+  const dataOnSearch = useMemo(() => {
+    if (data) {
+      return data?.filter((item) =>
+        item?.name_employee?.toLowerCase()?.includes(valueSearch?.toLowerCase())
+      );
+    }
+    return [];
+  }, [data, valueSearch]);
+  const onSearch = (e) => {
+    setValueSearch(e?.target?.value);
+  };
+  /* END event search */
   return (
     <>
       <Card border="light" className="bg-white shadow-sm mb-4 mt-5">
         <Card.Body>
           <h5 className="mb-4">Duyệt tăng ca</h5>
+          <div
+            style={{ maxWidth: "420px", marginBottom: "58px" }}
+            className="search"
+          >
+            <Search placeholder="Tìm kiếm" onChange={onSearch} enterButton />
+          </div>
           <Table
             columns={columns}
-            dataSource={data}
+            dataSource={dataOnSearch}
             onChange={onChange}
             showSorterTooltip={false}
           />
@@ -136,86 +188,10 @@ const Overtime = () => {
             footer={null}
             width={900}
           >
-            <h5 style={{ marginBottom: "40px" }}>Duyệt tăng ca</h5>
-            <Row style={{ marginBottom: "20px" }}>
-              <Col md={4}>
-                <h6 style={{ fontWeight: 700 }}>
-                  Tên nhân viên :{" "}
-                  <span style={{ fontWeight: 500 }}>Bùi Chí Thông</span>
-                </h6>
-              </Col>
-              <Col md={4}>
-                <h6 style={{ fontWeight: 700 }}>
-                  Ngày đăng ký tăng ca :{" "}
-                  <span style={{ fontWeight: 500 }}>2023-03-29</span>
-                </h6>
-              </Col>
-              <Col md={4}>
-                <h6 style={{ fontWeight: 700 }}>
-                  Số điện thoại :{" "}
-                  <span style={{ fontWeight: 500 }}>0795590868</span>
-                </h6>
-              </Col>
-            </Row>
-            <Row style={{ marginBottom: "20px" }}>
-              <Col md={12}>
-                <h6 style={{ fontWeight: 700 }}>
-                  Tên dự án :{" "}
-                  <span style={{ fontWeight: 500 }}>
-                    Thi công công trình Đại học
-                  </span>
-                </h6>
-              </Col>
-            </Row>
-            <Row style={{ marginBottom: "20px" }}>
-              <Col md={4}>
-                <h6 style={{ fontWeight: 700 }}>
-                  Thời gian bắt đầu :{" "}
-                  <span style={{ fontWeight: 500 }}>2023-04-05</span>
-                </h6>
-              </Col>
-              <Col md={4}>
-                <h6 style={{ fontWeight: 700 }}>
-                  Thời gian kết thúc :{" "}
-                  <span style={{ fontWeight: 500 }}>2023-04-06</span>
-                </h6>
-              </Col>
-            </Row>
-            <Row>
-              <Col md={12}>
-                <h6>Nội dung tăng ca :</h6>
-                <p>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Tenetur hic totam cumque alias. Itaque laborum commodi
-                  corporis deserunt, voluptas sed repudiandae. Repudiandae,
-                  voluptas? Cupiditate architecto quibusdam unde perferendis eum
-                  perspiciatis.
-                </p>
-              </Col>
-            </Row>
-            <div
-              style={{
-                width: "100%",
-                display: "flex",
-                justifyContent: "end",
-                marginBottom: "20px",
-                gap: 20,
-              }}
-            >
-              <Button
-                type="primary"
-                className="signInBtn"
-                onClick={showModal}
-                style={{
-                  padding: "0px 20px",
-                  backgroundColor: "#262b40",
-                  height: "38px",
-                  fontSize: "16px",
-                }}
-              >
-                Duyệt
-              </Button>
-            </div>
+            <PageOvertimeUpdate
+              onClose={handleSaveClose}
+              idUpdate={idUpdate}
+            ></PageOvertimeUpdate>
           </Modal>
         </Card.Body>
       </Card>

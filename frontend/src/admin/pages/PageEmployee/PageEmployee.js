@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Card } from "@themesberg/react-bootstrap";
-import { Button, Table, Modal } from "antd";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import Search from "antd/es/transfer/search";
+import { Button, Table, Modal, Tag } from "antd";
+import { useNavigate } from "react-router-dom";
 import PageNewEmployee from "./PageNewEmployee";
 import apiUser from "../../../api/apiUser";
 import "../../../styles/general.css";
@@ -10,41 +10,15 @@ import "../../../styles/general.css";
 const PageEmployee = () => {
   const navigate = useNavigate();
 
+  const [valueSearch, setValueSearch] = useState("");
+
   const [dataAPI, setDataAPI] = useState(null);
-  const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isId, setIsId] = useState(null);
-  const onChange = (pagination, filters, sorter, extra) => {};
-
-  /* START event notify */
-  const notifySuccess = () => {
-    toast.success(" Xóa nhân viên thành công!", {
-      position: "top-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-  };
-  const notifyError = () => {
-    toast.error(" Xóa nhân viên thất bại!", {
-      position: "top-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
-  };
-  /* END event notify */
 
   /* START columns table */
+  const onChange = (pagination, filters, sorter, extra) => {};
+
   const columns = [
     {
       title: "Tên tài khoản",
@@ -71,13 +45,21 @@ const PageEmployee = () => {
       },
     },
     {
-      title: "Giới tính",
-      dataIndex: "gender_employee",
-      sorter: {
-        compare: (a, b) => a.gender_employee - b.gender_employee,
-        multiple: 2,
-      },
+      title: "Chức vụ",
+      dataIndex: "position_employee",
+      filters: [
+        {
+          text: "Trưởng nhóm xây dựng",
+          value: "Trưởng nhóm xây dựng",
+        },
+        {
+          text: "Công nhân xây dựng",
+          value: "Công nhân xây dựng",
+        },
+      ],
+      onFilter: (value, record) => record.position_employee === value,
     },
+
     {
       title: "Trạng thái",
       dataIndex: "status",
@@ -88,20 +70,19 @@ const PageEmployee = () => {
         },
         {
           text: "Ngưng hoạt động",
-          value: "2",
+          value: "Ngưng hoạt động",
         },
       ],
       onFilter: (value, record) => record.status === value,
-      render: (status) => (
-        <span
-          style={{
-            color: status === "Đang hoạt động" ? "green" : "red",
-            fontWeight: 600,
-          }}
-        >
-          {status === "Đang hoạt động" ? "Đang hoạt động" : "Ngưng hoạt động"}
-        </span>
-      ),
+
+      render: (_, { status }) => {
+        let color = status === "Đang hoạt động" ? "green" : "volcano";
+        return (
+          <Tag color={color} key={status}>
+            {status === "Đang hoạt động" ? "Đang hoạt động" : "Ngưng hoạt động"}
+          </Tag>
+        );
+      },
       defaultFilteredValue: ["Đang hoạt động"],
     },
     {
@@ -125,18 +106,6 @@ const PageEmployee = () => {
             >
               Chi tiết
             </div>
-            <Link
-              style={{
-                color: "white",
-                fontWeight: "600",
-                borderRadius: "6px",
-                backgroundColor: "#e00101",
-                padding: "5px 18px",
-              }}
-              onClick={handleDeleteUser(item.key)}
-            >
-              Xóa
-            </Link>
           </div>
         );
       },
@@ -159,29 +128,6 @@ const PageEmployee = () => {
   };
   /* END event show and close model detail Employee */
 
-  /* START event show and close delete detail Employee */
-  const handleOkDelete = () => {
-    try {
-      apiUser.deleteUser(isId).then(() => {
-        apiUser.getAllUser().then((res) => {
-          notifySuccess();
-          setDataAPI(res);
-          setIsModalOpenDelete(false);
-        });
-      });
-    } catch (error) {
-      notifyError();
-    }
-  };
-  const handleCancelDelete = () => {
-    setIsModalOpenDelete(false);
-  };
-  const handleDeleteUser = (id) => () => {
-    setIsModalOpenDelete(true);
-    setIsId(id);
-  };
-  /* END event show and close delete detail Employee */
-
   /* STAR event close when create employee success */
   const handleSaveClose = () => {
     apiUser.getAllUser().then((res) => {
@@ -191,7 +137,7 @@ const PageEmployee = () => {
   };
   /* END event close when create employee success */
 
-  /* START event call api all employee */
+  /* START event call api to pass table  */
   useEffect(() => {
     async function fetchData() {
       const data = await apiUser.getAllUser();
@@ -199,9 +145,6 @@ const PageEmployee = () => {
     }
     fetchData();
   }, []);
-  /* END event call api all employee */
-
-  /* START event call api to pass table  */
   const data = useMemo(() => {
     if (dataAPI?.data) {
       return dataAPI?.data?.map((item, index) => ({
@@ -210,18 +153,38 @@ const PageEmployee = () => {
         name_employee: item.name_employee,
         phone_employee: item.phone_employee,
         gender_employee: item.gender_employee,
+        position_employee: item.position_employee,
         status: item.status,
       }));
     }
     return [];
   }, [dataAPI]);
+
   /* END event call api to pass table  */
 
-  console.log(isId);
+  /* START event search */
+  const dataOnSearch = useMemo(() => {
+    if (data) {
+      return data?.filter((item) =>
+        item?.account_employee
+          ?.toLowerCase()
+          ?.includes(valueSearch?.toLowerCase())
+      );
+    }
+    return [];
+  }, [data, valueSearch]);
+  const onSearch = (e) => {
+    setValueSearch(e.target.value);
+  };
+  /* END event search */
+
   return (
     <Card border="light" className="bg-white shadow-sm mb-4 mt-5">
       <Card.Body>
         <h5 className="mb-4">Quản lý nhân viên</h5>
+        <div style={{ maxWidth: "420px" }} className="search">
+          <Search placeholder="Tìm kiếm" onChange={onSearch} enterButton />
+        </div>
         <div
           style={{
             width: "100%",
@@ -246,7 +209,7 @@ const PageEmployee = () => {
         </div>
         <Table
           columns={columns}
-          dataSource={data}
+          dataSource={dataOnSearch}
           onChange={onChange}
           showSorterTooltip={false}
         />
@@ -258,13 +221,6 @@ const PageEmployee = () => {
           width={1200}
         >
           <PageNewEmployee onClose={handleSaveClose}></PageNewEmployee>
-        </Modal>
-        <Modal
-          open={isModalOpenDelete}
-          onOk={handleOkDelete}
-          onCancel={handleCancelDelete}
-        >
-          <p>Bạn có chắc chắn muốn xóa?</p>
         </Modal>
       </Card.Body>
     </Card>

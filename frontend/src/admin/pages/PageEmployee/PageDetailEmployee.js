@@ -10,23 +10,35 @@ import { toast } from "react-toastify";
 import moment from "moment-timezone";
 const DetailEmployee = () => {
   const [image, setImage] = useState();
+
   const [imageAfter, setImageAfter] = useState();
+
   const [imageTest, setImageTest] = useState(true);
+
   const [dataDepartment, setDataDepartment] = useState(null);
+
   const [dataApi, setDataApi] = useState(null);
 
   const { id } = useParams();
 
   const [form] = Form.useForm();
 
-  const [selectStatus, setSelectStatus] = useState(null);
+  const [selectedPositionLabel, setSelectedPositionLabel] = useState("");
+
+  const [selectStatus, setSelectStatus] = useState("");
+
   const handleChangeStatus = (value, label) => {
     setSelectStatus(label?.label);
   };
 
   const handleChange = (value) => {};
+
   const handleChangeDepartment = (value) => {};
-  const handleChangePosition = (value) => {};
+
+  const handleChangePosition = (value, label) => {
+    setSelectedPositionLabel(label?.label);
+  };
+
   const onChange = (date, dateString) => {};
 
   /* START event notify */
@@ -106,6 +118,7 @@ const DetailEmployee = () => {
   const onFinish = async (values) => {
     values.status = selectStatus;
     values.image = imageAfter;
+    values.position_employee = selectedPositionLabel;
     const dataForm = new FormData();
     Object.entries(values).forEach(([key, value]) => {
       dataForm.append(key, value);

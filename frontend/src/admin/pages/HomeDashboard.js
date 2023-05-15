@@ -1,42 +1,35 @@
-import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCashRegister,
-  faChartLine,
-  faCloudUploadAlt,
-  faPlus,
-  faRocket,
-  faTasks,
-  faUserShield,
-} from "@fortawesome/free-solid-svg-icons";
-import {
-  Col,
-  Row,
-  Button,
-  Dropdown,
-  ButtonGroup,
-} from "@themesberg/react-bootstrap";
-import {
-  AcquisitionWidget,
-  BarChartWidget,
-  CircleChartWidget,
-  CounterWidget,
-  ProgressTrackWidget,
-  RankingWidget,
-  SalesValueWidget,
-  SalesValueWidgetPhone,
-  TeamMembersWidget,
-} from "../components/Widgets";
-import { totalOrders, trafficShares } from "../data/charts";
+import React, { useEffect, useState } from "react";
+import { faCashRegister, faChartLine } from "@fortawesome/free-solid-svg-icons";
+import { Col, Row } from "@themesberg/react-bootstrap";
+import { CounterWidget, TeamMembersWidget } from "../components/Widgets";
+import apiUser from "../../api/apiUser";
 const Home = () => {
+  const [dataAPI, setDataAPI] = useState([]);
+  const [dataAPIManager, setDataAPIManager] = useState([]);
+
+  /* START event call api get all employee */
+  useEffect(() => {
+    async function fetchData() {
+      const data = await apiUser.getAllUser();
+      const activeUsers = data?.data?.filter(
+        (user) => user.status === "Ngưng hoạt động"
+      );
+      const userManager = data?.data?.filter(
+        (user) => user.position_employee === "Trưởng nhóm xây dựng"
+      );
+      setDataAPIManager(userManager);
+      setDataAPI(activeUsers);
+    }
+    fetchData();
+  }, []);
+  /* END event call api get all employee */
   return (
     <>
       <Row className="justify-content-md-center mt-5">
         <Col xs={12} sm={6} xl={4} className="mb-4">
           <CounterWidget
             category="Tổng số nhân viên"
-            title="40"
-            // period="Feb 1 - Apr 1"
+            title={dataAPI.length}
             percentage={18.2}
             icon={faChartLine}
             iconColor="shape-secondary"
@@ -47,7 +40,6 @@ const Home = () => {
           <CounterWidget
             category="Tổng số dự án"
             title="26"
-            // period="Feb 1 - Apr 1"
             percentage={28.4}
             icon={faCashRegister}
             iconColor="shape-tertiary"
@@ -57,8 +49,7 @@ const Home = () => {
         <Col xs={12} sm={6} xl={4} className="mb-4">
           <CounterWidget
             category="Tổng số quản lý"
-            title="26"
-            // period="Feb 1 - Apr 1"
+            title={dataAPIManager.length}
             percentage={28.4}
             icon={faCashRegister}
             iconColor="shape-tertiary"

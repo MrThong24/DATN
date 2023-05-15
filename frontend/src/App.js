@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import PageOvertime from "./user/Pages/PageOvertime/PageOvertime";
+import PageOvertimeDetail from "./user/Pages/PageOvertime/PageOvertimeUpdate";
 import Profile from "./user/Pages/PageProfile/PageProfile";
 import PageProject from "./user/Pages/PageProject/PageProject";
 import PageProjectId from "./user/Pages/PageProject/DetailPageProject";
@@ -18,6 +19,13 @@ import PageDepartment from "./admin/pages/PageDepartment/PageDepartment";
 import PageEmployee from "./admin/pages/PageEmployee/PageEmployee";
 import PageDetailEmployee from "./admin/pages/PageEmployee/PageDetailEmployee";
 import { useSelector } from "react-redux";
+import PageOvertimeUpdate from "./user/Pages/PageOvertime/PageOvertimeUpdate";
+
+import LayoutManager from "./userManager/layout/LayoutManager";
+import PageProfileManager from "./userManager/pages/PageProfile/PageProfileManager";
+import PageOvertimeManager from "./userManager/pages/PageOvertime/PageOvertimeManager";
+import PageOvertimeManagerUpdate from "./userManager/pages/PageOvertime/PageOvertimeManagerUpdate";
+
 // import history from "./utils/history";
 
 const SignIn = React.lazy(() => import("./admin/pages/SignIn"));
@@ -41,9 +49,23 @@ function App() {
         <Route path="/" index element={<Profile />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/overtime" element={<PageOvertime />} />
+        <Route path="/overtime/:id" element={<PageOvertimeUpdate />} />
         <Route path="/project" element={<PageProject />} />
         <Route path="/project/id" element={<PageProjectId />} />
       </Route>
+
+      <Route element={<LayoutManager />}>
+        <Route path="/manager/profile" element={<PageProfileManager />}></Route>
+        <Route
+          path="/manager/overtime"
+          element={<PageOvertimeManager />}
+        ></Route>
+        <Route
+          path="/manager/overtime/:id"
+          element={<PageOvertimeManagerUpdate />}
+        ></Route>
+      </Route>
+
       <Route element={<LayoutAdmin />}>
         <Route path="/dashboard" index element={<HomeAdmin />} />
         <Route path="/dashboard/employee" index element={<PageEmployee />} />

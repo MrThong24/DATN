@@ -15,3 +15,8 @@
 .profileCover:hover .profileCoverLabel {
   display: block;
 }
+
+.password_container span {
+  height: 40px !important;
+  padding: 0px 11px !important;
+}

@@ -2,29 +2,23 @@ import React, { useState } from "react";
 import SimpleBar from "simplebar-react";
 import { useLocation } from "react-router-dom";
 import { CSSTransition } from "react-transition-group";
-import { logout } from "../../actions/userActions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { logout } from "../../actions/userActions";
 import {
   faSignOutAlt,
   faTimes,
-  faHouse,
-  faUser,
-  faClipboardCheck,
-  faRegistered,
   faBriefcase,
-  faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 import { Nav, Badge, Image, Button, Navbar } from "@themesberg/react-bootstrap";
+import { faRegistered, faUser } from "@fortawesome/free-regular-svg-icons";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import "../../styles/general.css";
 
 const Sidebar = () => {
   const location = useLocation();
-
   const { pathname } = location;
-
   const [show, setShow] = useState(false);
-
   const showClass = show ? "show" : "";
 
   const onCollapse = () => setShow(!show);
@@ -103,7 +97,7 @@ const Sidebar = () => {
           className={`collapse ${showClass} sidebar d-md-block bg-primary text-white`}
         >
           <div className="sidebar-inner px-4 pt-3">
-            <div className="user-card d-flex d-md-none align-items-center justify-content-between justify-content-md-center pb-4">
+            <div className=" user-card d-flex d-md-none align-items-center justify-content-between justify-content-md-center pb-4">
               <div className="d-flex align-items-center">
                 <div className="user-avatar lg-avatar me-4">
                   <Image
@@ -134,13 +128,17 @@ const Sidebar = () => {
             <Nav className="flex-column pt-3 pt-md-0">
               <NavItem title="DMM Group" link="profile" />
 
-              <NavItem title="Trang cá nhân" link="/profile" icon={faUser} />
+              <NavItem
+                title="Trang cá nhân"
+                link="/manager/profile"
+                icon={faUser}
+              />
               <NavItem
                 title="Đăng ký tăng ca"
                 icon={faRegistered}
-                link="/overtime"
+                link="/manager/manager"
               />
-              <NavItem title="Công việc" icon={faBriefcase} link="/project" />
+              <NavItem title="Công việc" icon={faBriefcase} />
             </Nav>
           </div>
         </SimpleBar>
