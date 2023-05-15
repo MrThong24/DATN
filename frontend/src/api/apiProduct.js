@@ -1,35 +1,27 @@
+import axios from "axios";
 import axiosInstance from "./axios";
 
 const apiProduct = {
-  getAllProduct(queryParams) {
-    return axiosInstance.get("/product", {
-      params: queryParams,
-    });
+  async createUser(formData) {
+    const token = localStorage.getItem("jwt_token");
+
+    const user = await axios.post(
+      `${process.env.REACT_APP_BASE_URL}product/create`,
+      formData,
+      {
+        headers: {
+          "content-type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return user;
   },
-  async addProduct(formdata) {
-    const dataProduct = await axiosInstance.post("/product", formdata, {
-      headers: { "content-type": "multipart/form-data" },
-    });
-    return dataProduct;
-  },
-  async getProductById(id) {
-    const product = await axiosInstance.get(`/product/detail-product/${id}`);
-    return product;
-  },
-  async deleteProductById(id) {
-    const product = await axiosInstance.delete(`/product/delete/${id}`);
-    return product;
-  },
-  async getSuggestById(object) {
-    const product = await axiosInstance.get(`/product/product-suggest`, {
-      params: object,
-    });
-    return product;
-  },
-  async editProductById(id, formData) {
-    await axiosInstance.put(`/product/edit-product/${id}`, formData, {
-      headers: { "content-type": "multipart/form-data" },
-    });
-  },
+  // async addProduct(formdata) {
+  //   const dataProduct = await axiosInstance.post("/product", formdata, {
+  //     headers: { "content-type": "multipart/form-data" },
+  //   });
+  //   return dataProduct;
+  // },
 };
 export default apiProduct;

@@ -90,8 +90,17 @@
     :disabled
   ):hover {
   color: #fff;
-  background-color: #355bc0;
 }
 .signIn .ant-form-item-control-input {
   text-align: center;
+}
+.password_container .ant-input-affix-wrapper {
+  height: 40px !important;
+  padding: 0px 11px !important;
+}
+.password_container .ant-input-affix-wrapper input {
+  height: 38px !important;
+}
+.password_container .anticon-eye-invisible {
+  line-height: 34px;
 }

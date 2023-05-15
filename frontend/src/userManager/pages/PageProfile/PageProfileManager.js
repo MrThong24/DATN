@@ -8,7 +8,7 @@ import apiUser from "../../../api/apiUser";
 import moment from "moment-timezone";
 import "../../../styles/general.css";
 
-const PageProfile = () => {
+const PageProfileManager = () => {
   const [dataApi, setDataApi] = useState(null);
 
   const [userId, setUserId] = useState([]);
@@ -113,4 +113,4 @@ const PageProfile = () => {
   );
 };
 
-export default PageProfile;
+export default PageProfileManager;

@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../actions/userActions";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 const SignIn = ({ location }) => {
   const dispatch = useDispatch();
 
@@ -17,7 +16,6 @@ const SignIn = ({ location }) => {
 
   const { error, userInfo } = userLogin;
 
-  const navigate = useNavigate();
   /* START column notify */
   const notifyError = () => {
     toast.error(" Tên tài khoản hoặc mật khẩu sai!", {
@@ -36,9 +34,19 @@ const SignIn = ({ location }) => {
   useEffect(() => {
     if (userInfo) {
       if (userInfo?.isAdmin) {
-        navigate("/dashboard/employee");
+        window.location.href = "/dashboard";
+      } else if (
+        userInfo?.status === "Đang hoạt động" &&
+        userInfo.position_employee === "Công nhân xây dựng"
+      ) {
+        window.location.href = "/profile";
+      } else if (
+        userInfo?.status === "Đang hoạt động" &&
+        userInfo.position_employee === "Trưởng nhóm xây dựng"
+      ) {
+        window.location.href = "/manager/profile";
       } else {
-        navigate("/profile");
+        notifyError();
       }
     }
     if (error) {
@@ -55,9 +63,13 @@ const SignIn = ({ location }) => {
       <div className="signIn">
         <Layout className="layout-default layout-signin">
           <h2 className="title">Chào mừng trở lại!</h2>
-          <Form onFinish={onFinish} layout="vertical" className="row-col">
+          <Form
+            onFinish={onFinish}
+            layout="vertical"
+            className="row-col"
+            autoComplete="off"
+          >
             <Form.Item
-              className="username"
               label="Tên tài khoản"
               name="account_employee"
               rules={[
@@ -68,32 +80,35 @@ const SignIn = ({ location }) => {
                 },
               ]}
             >
-              <Input placeholder="Tài khoản" className="inputUser" />
+              <Input placeholder="Tài khoản" autoComplete="off" />
             </Form.Item>
-            <Form.Item
-              className="username"
-              label="Mật khẩu"
-              name="password_employee"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input your password!",
-                },
-              ]}
-            >
-              <Input.Password
-                placeholder="Password"
-                className="inputPass"
-                iconRender={(visible) =>
-                  visible ? (
-                    <EyeTwoTone className="iconEye" />
-                  ) : (
-                    <EyeInvisibleOutlined className="iconEye" />
-                  )
-                }
-                autoComplete={false}
-              />
-            </Form.Item>
+            <div className="password_container">
+              <Form.Item
+                class="password_container"
+                label="Mật khẩu"
+                name="password_employee"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input your password!",
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input.Password
+                  autoComplete="new-password"
+                  class="password_container"
+                  placeholder="Password"
+                  iconRender={(visible) =>
+                    visible ? (
+                      <EyeTwoTone className="iconEye" />
+                    ) : (
+                      <EyeInvisibleOutlined className="iconEye" />
+                    )
+                  }
+                />
+              </Form.Item>
+            </div>
             <Form.Item>
               <Button
                 type="primary"

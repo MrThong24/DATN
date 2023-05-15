@@ -8,9 +8,12 @@ import { toast } from "react-toastify";
 import PageDepartmentUpdate from "./PageDepartmentUpdate";
 import "../../../styles/general.css";
 import "react-toastify/dist/ReactToastify.css";
+import Search from "antd/es/transfer/search";
 
 const PageDepartment = () => {
   const [dataAPI, setDataAPI] = useState(null);
+
+  const [valueSearch, setValueSearch] = useState("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -20,8 +23,8 @@ const PageDepartment = () => {
 
   const [form] = Form.useForm();
 
-  const onChange = (pagination, filters, sorter, extra) => {};
-
+  /* START event columns table */
+  const onChangeTable = (pagination, filters, sorter, extra) => {};
   const columns = [
     {
       title: "Mã phòng ban",
@@ -74,7 +77,9 @@ const PageDepartment = () => {
       },
     },
   ];
+  /* END event columns table */
 
+  /* START event modal */
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -105,6 +110,7 @@ const PageDepartment = () => {
       setDataAPI(res);
     });
   };
+  /* START event modal */
 
   /* START event notify */
   const notifySuccessUpdate = () => {
@@ -208,10 +214,29 @@ const PageDepartment = () => {
     }
   };
   /* END event call api create Department */
+
+  /* START event search */
+  const dataOnSearch = useMemo(() => {
+    if (data) {
+      return data?.filter((item) =>
+        item?.code_department
+          ?.toLowerCase()
+          ?.includes(valueSearch?.toLowerCase())
+      );
+    }
+    return [];
+  }, [data, valueSearch]);
+  const onSearch = (e) => {
+    setValueSearch(e.target.value);
+  };
+  /* END event search */
   return (
     <Card border="light" className="bg-white shadow-sm mb-4 mt-5">
       <Card.Body>
         <h5 className="mb-4">Phòng ban</h5>
+        <div style={{ maxWidth: "420px" }} className="search">
+          <Search placeholder="Tìm kiếm" onChange={onSearch} enterButton />
+        </div>
         <div
           style={{
             width: "100%",
@@ -236,8 +261,8 @@ const PageDepartment = () => {
         </div>
         <Table
           columns={columns}
-          dataSource={data}
-          onChange={onChange}
+          dataSource={dataOnSearch}
+          onChange={onChangeTable}
           showSorterTooltip={false}
           pagination={{
             pageSize: 5, // Số lượng bản ghi trên mỗi trang

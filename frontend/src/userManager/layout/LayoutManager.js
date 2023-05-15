@@ -4,7 +4,7 @@ import { ToastContainer } from "react-toastify";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 
-const LayoutUser = () => {
+const LayoutManager = () => {
   return (
     <div className="layout">
       <div style={{ display: "flex" }}>
@@ -25,4 +25,4 @@ const LayoutUser = () => {
   );
 };
 
-export default LayoutUser;
+export default LayoutManager;

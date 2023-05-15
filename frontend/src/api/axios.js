@@ -11,7 +11,7 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(async (config) => {
   const token = localStorage.getItem("jwt_token");
-  console.log(config);
+  // console.log(config);
   config.headers = {
     "Content-Type": "application/json",
     // "content-type": "multipart/form-data",
