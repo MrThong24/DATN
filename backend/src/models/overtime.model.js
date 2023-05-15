@@ -3,17 +3,18 @@ const mongoose = require('mongoose');
 const overtimeSchema = mongoose.Schema(
   {
     name_employee: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user',
     },
     registration_date: {
       type: Date,
-      default: Date.now,
     },
     phone: {
       type: Number,
     },
     name_project: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'project',
     },
     date_start: {
       type: Date,
