@@ -5,6 +5,7 @@ import { Button, Form, Input, Select, DatePicker, Modal } from "antd";
 import apiOvertime from "../../../api/apiOvertime";
 import TextArea from "antd/es/input/TextArea";
 import { toast } from "react-toastify";
+import apiProduct from "../../../api/apiProduct";
 
 const PageOvertimeNew = ({ onClose }) => {
   const onChange = (date, dateString) => {};
@@ -19,7 +20,7 @@ const PageOvertimeNew = ({ onClose }) => {
 
   /* START event Notify */
   const notifySuccess = () => {
-    toast.success(" Đăng ký thành công tăng ca !", {
+    toast.success(" Đăng ký tăng ca thành công !", {
       position: "top-right",
       autoClose: 2000,
       hideProgressBar: false,
@@ -31,7 +32,7 @@ const PageOvertimeNew = ({ onClose }) => {
     });
   };
   const notifyError = () => {
-    toast.error(" Đăng ký thành công thất bại!", {
+    toast.error(" Đăng ký tăng ca thất bại!", {
       position: "top-right",
       autoClose: 2000,
       hideProgressBar: false,
@@ -52,6 +53,26 @@ const PageOvertimeNew = ({ onClose }) => {
   }, []);
   /* END get userInfo data from localStorage */
 
+  const [dataAPI, setDataAPI] = useState(null);
+  useEffect(() => {
+    async function fetchData() {
+      const data = await apiProduct.getAllProject();
+      setDataAPI(data);
+    }
+    fetchData();
+  }, []);
+
+  const optionsProject = dataAPI?.data
+    ?.filter(
+      (item) =>
+        item.statusOvertime === true &&
+        item.worker_project.some((manager) => manager._id === userId._id)
+    )
+    ?.map((item) => ({
+      value: item._id,
+      label: item.name_project,
+    }));
+
   /* START event create overtime */
   const onFinish = async (values) => {
     const {
@@ -62,11 +83,12 @@ const PageOvertimeNew = ({ onClose }) => {
       date_end,
       content,
     } = values;
+
     const dataForm = new FormData();
     dataForm.append("registration_date", registration_date);
     dataForm.append("phone", phone);
     dataForm.append("name_employee", userId._id);
-    // dataForm.append("name_project", name_project);
+    dataForm.append("name_project", name_project);
     dataForm.append("date_start", date_start);
     dataForm.append("date_end", date_end);
     dataForm.append("content", content);
@@ -76,12 +98,13 @@ const PageOvertimeNew = ({ onClose }) => {
         notifySuccess();
       });
     } catch (error) {
-      notifyError(error);
+      notifyError();
     }
   };
   /* END event create overtime */
+
   return (
-    <LayoutPage title="Đăng ký tăng">
+    <LayoutPage title="Đăng ký tăng ca">
       <Form layout="vertical" className="row-col" onFinish={onFinish}>
         <Row>
           <Col md={4}>
@@ -122,10 +145,7 @@ const PageOvertimeNew = ({ onClose }) => {
                 style={{ width: 120 }}
                 placeholder="Tên dự án"
                 onChange={handleChangeOvertimeProject}
-                options={[
-                  { value: "project_1", label: "Dự án 1" },
-                  { value: "project_2", label: "Dự án 2" },
-                ]}
+                options={optionsProject}
               />
             </Form.Item>
           </Col>
@@ -179,11 +199,14 @@ const PageOvertimeNew = ({ onClose }) => {
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng nhập số điện thoại !",
+                  message: "Vui lòng nhập số điện thoại và nhập đủ 10 số!",
+                  pattern: /^[0-9]{10}$/,
+                  type: "string",
                 },
               ]}
             >
               <Input
+                maxLength={10}
                 placeholder="Số điện thoại"
                 className="inputUser input-group_form"
               />

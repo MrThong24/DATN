@@ -27,3 +27,6 @@ table {
 :where(.css-dev-only-do-not-override-mxhywb).ant-input-affix-wrapper {
   padding: 7px 11px !important;
 }
+.new-notification {
+  color: red;
+}

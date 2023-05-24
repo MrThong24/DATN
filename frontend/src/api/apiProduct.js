@@ -1,27 +1,20 @@
-import axios from "axios";
 import axiosInstance from "./axios";
 
 const apiProduct = {
-  async createUser(formData) {
-    const token = localStorage.getItem("jwt_token");
-
-    const user = await axios.post(
-      `${process.env.REACT_APP_BASE_URL}product/create`,
-      formData,
-      {
-        headers: {
-          "content-type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return user;
+  async createProject(formData) {
+    const dataProduct = await axiosInstance.post("project/create", formData);
+    return dataProduct;
   },
-  // async addProduct(formdata) {
-  //   const dataProduct = await axiosInstance.post("/product", formdata, {
-  //     headers: { "content-type": "multipart/form-data" },
-  //   });
-  //   return dataProduct;
-  // },
+  getAllProject() {
+    return axiosInstance.get("/project");
+  },
+  async getProjectId(id) {
+    const dataProduct = await axiosInstance.get(`/project/${id}`);
+    return dataProduct;
+  },
+  async updateProjectId(id, formData) {
+    const dataProduct = await axiosInstance.put(`/project/${id}`, formData);
+    return dataProduct;
+  },
 };
 export default apiProduct;

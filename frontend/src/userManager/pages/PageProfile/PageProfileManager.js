@@ -75,7 +75,7 @@ const PageProfileManager = () => {
                 title="Ngày sinh"
                 name={
                   dataApi
-                    ? moment(dataApi.date_of_birth).format("DD/MM/YYYY")
+                    ? moment(dataApi?.date_of_birth).format("DD/MM/YYYY")
                     : null
                 }
               ></Field>

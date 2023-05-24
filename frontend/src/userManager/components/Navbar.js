@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
-
+import moment from "moment-timezone";
 import {
   Row,
   Col,
@@ -12,81 +12,65 @@ import {
   Container,
   ListGroup,
 } from "@themesberg/react-bootstrap";
-import NOTIFICATIONS_DATA from "../data/notifications";
 import { logout } from "../../actions/userActions";
 import { useDispatch } from "react-redux";
+import apiNotification from "../../api/apiNotification";
+import "../../styles/general.css";
+import { useNavigate } from "react-router";
+import { useMemo } from "react";
 
 const Navbarr = () => {
-  const [notifications, setNotifications] = useState(NOTIFICATIONS_DATA);
+  const [notifications, setNotifications] = useState();
+  // const [isSeen, setIsSeen] = useState();
 
-  const [userId, setUserId] = useState([]);
+  const [userId, setUserId] = useState({});
 
-  /* START get userInfo data from localStorage */
+  const fetchData = async (id_user) => {
+    try {
+      await apiNotification.getNotificationById(id_user).then((data) => {
+        setNotifications(data.data);
+      });
+    } catch (error) {}
+  };
+
+  const isNoti = useMemo(() => {
+    return notifications?.some((item) => {
+      return !item?.list_user?.find(({ id_user }) => id_user === userId._id)
+        ?.status_notification;
+    });
+  }, [notifications, userId]);
+
   useEffect(() => {
-    const id =
+    const user =
       localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
-    setUserId(JSON.parse(id));
+    setUserId(JSON.parse(user));
+    fetchData(JSON.parse(user)._id);
   }, []);
-  /* END get userInfo data from localStorage */
-
-  const areNotificationsRead = notifications.reduce(
-    (acc, notif) => acc && notif.read,
-    true
-  );
-
-  const markNotificationsAsRead = () => {
-    setTimeout(() => {
-      setNotifications(notifications.map((n) => ({ ...n, read: true })));
-    }, 300);
-  };
-
-  const Notification = (props) => {
-    const { link, sender, image, time, message, read = false } = props;
-    const readClassName = read ? "" : "text-danger";
-
-    return (
-      <ListGroup.Item action href={link} className="border-bottom border-light">
-        <Row className="align-items-center">
-          <Col className="col-auto">
-            <Image
-              src={image}
-              className="user-avatar lg-avatar rounded-circle"
-            />
-          </Col>
-          <Col className="ps-0 ms--2">
-            <div className="d-flex justify-content-between align-items-center">
-              <div>
-                <h4 className="h6 mb-0 text-small">{sender}</h4>
-              </div>
-              <div className="text-end">
-                <small className={readClassName}>{time}</small>
-              </div>
-            </div>
-            <p className="font-small mt-1 mb-0">{message}</p>
-          </Col>
-        </Row>
-      </ListGroup.Item>
-    );
-  };
 
   const dispatch = useDispatch();
 
-  console.log(userId);
+  // const newNotification =
+
+  const markNotificationsAsRead = () => {
+    setTimeout(() => {
+      setNotifications(notifications?.map((n) => ({ ...n, read: true })));
+    }, 300);
+  };
 
   return (
     <Navbar variant="dark" expanded className="ps-0 pe-2 pb-0">
-      <Container fluid className="px-0">
+      <Container fluid className="px-0 navbar-css">
         <div className="d-flex justify-content-between w-100">
           <div className="d-flex align-items-center">{""}</div>
           <Nav className="align-items-center">
             <Dropdown as={Nav.Item} onToggle={markNotificationsAsRead}>
-              {/* <Dropdown.Toggle
+              <Dropdown.Toggle
                 as={Nav.Link}
                 className="text-dark icon-notifications me-lg-3"
               >
                 <span className="icon icon-sm">
                   <FontAwesomeIcon icon={faBell} className="bell-shake" />
-                  {areNotificationsRead ? null : (
+                  {isNoti && (
                     <span className="icon-badge rounded-circle unread-notifications" />
                   )}
                 </span>
@@ -97,18 +81,19 @@ const Navbarr = () => {
                     href="#"
                     className="text-center text-primary fw-bold border-bottom border-light py-3"
                   >
-                    Notifications
+                    Thông báo
                   </Nav.Link>
-
-                  {notifications.map((n) => (
-                    <Notification key={`notification-${n.id}`} {...n} />
-                  ))}
-
-                  <Dropdown.Item className="text-center text-primary fw-bold py-3">
-                    View all
-                  </Dropdown.Item>
+                  <div style={{ maxHeight: "400px", overflow: "auto" }}>
+                    {notifications?.map((notification) => (
+                      <Notification
+                        key={notification._id}
+                        notification={notification}
+                        userId={userId._id}
+                      />
+                    ))}
+                  </div>
                 </ListGroup>
-              </Dropdown.Menu> */}
+              </Dropdown.Menu>
             </Dropdown>
 
             <Dropdown as={Nav.Item}>
@@ -126,6 +111,7 @@ const Navbarr = () => {
                 </div>
               </Dropdown.Toggle>
               <Dropdown.Menu
+                style={{ width: "120px" }}
                 className="user-dropdown dropdown-menu-right mt-2"
                 onClick={() => dispatch(logout())}
               >
@@ -142,6 +128,90 @@ const Navbarr = () => {
         </div>
       </Container>
     </Navbar>
+  );
+};
+
+const Notification = ({ notification, userId }) => {
+  const {
+    list_user,
+    id_project: { _id },
+  } = notification;
+  const navigate = useNavigate();
+
+  const status_notification = list_user.filter(
+    (item) => item.id_user === userId
+  )[0].status_notification;
+  const handleClick = async () => {
+    if (status_notification) {
+      window.location.replace(`/project/${_id}`);
+      // window.location.reload();
+      return;
+    }
+    window.location.replace(`/project/${_id}`);
+    // window.location.reload();
+    try {
+      await apiNotification
+        .updateNotificationById({
+          id_user: userId,
+          id_project: _id,
+        })
+        .then(() => {});
+    } catch (error) {}
+  };
+  return (
+    <ListGroup.Item
+      action
+      className="border-bottom border-light"
+      onClick={handleClick}
+    >
+      <Row className="align-items-center">
+        <Col className="ps-0 ms--2 w-[620px]">
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <h4
+                className="h6 py-1"
+                style={{
+                  fontSize: "15px",
+                }}
+              >
+                Bạn đã được thêm vào dự án :
+              </h4>
+              <p>
+                {!status_notification && (
+                  <span
+                    style={{
+                      backgroundColor: "red",
+                      position: "absolute",
+                      top: 5,
+                      right: 8,
+                      width: "10px",
+                      height: "10px",
+                      borderRadius: "50%",
+                    }}
+                  >
+                    {" "}
+                  </span>
+                )}
+              </p>
+              <span
+                style={{
+                  fontSize: "16px",
+                  color: "black",
+                  fontWeight: "600",
+                }}
+              >
+                {notification?.id_project?.name_project}
+              </span>
+            </div>
+            <div className="text-end">
+              <small>
+                {moment(notification?.createdAt).format("DD/MM/YYYY")}
+              </small>
+            </div>
+          </div>
+        </Col>
+      </Row>
+    </ListGroup.Item>
   );
 };
 

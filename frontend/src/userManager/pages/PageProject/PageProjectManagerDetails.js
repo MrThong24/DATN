@@ -5,12 +5,12 @@ import TextArea from "antd/es/input/TextArea";
 import apiUser from "../../../api/apiUser";
 import apiDepartment from "../../../api/apiDepartment";
 import apiProduct from "../../../api/apiProduct";
-import LayoutPage from "../../Layout/LayoutPage";
+import LayoutPage from "../../layout/LayoutPage";
 import { useParams } from "react-router";
 import moment from "moment";
 import { toast } from "react-toastify";
 
-const PageDetailProject = () => {
+const PageProjectManagerDetails = () => {
   const { id } = useParams();
 
   const [form] = Form.useForm();
@@ -556,4 +556,4 @@ const PageDetailProject = () => {
   );
 };
 
-export default PageDetailProject;
+export default PageProjectManagerDetails;

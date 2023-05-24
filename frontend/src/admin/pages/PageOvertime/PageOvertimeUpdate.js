@@ -9,19 +9,39 @@ import { toast } from "react-toastify";
 const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
   const [dataApi, setDataApi] = useState(null);
 
+  const [status, setStatus] = useState(false);
+
   const [form] = Form.useForm();
 
   const [dateEnd, setDataEnd] = useState("");
 
-  const onChange = (date, dateString) => {};
+  const [dateStart, setDataStart] = useState("");
 
-  const onChangeStartDate = (date, dateString) => {};
+  const [registrationDate, setRegistrationDate] = useState("");
 
-  const onChangeEndDate = (date, dateString) => {
-    setDataEnd(dateString);
+  const onChangeStartDate = (e) => {
+    setDataStart(e.target.value);
+  };
+
+  const onChangeEndDate = (e) => {
+    setDataEnd(e.target.value);
+  };
+
+  const onChangeRegistration = (e) => {
+    setRegistrationDate(e.target.value);
   };
 
   const handleChangeIsActive = (value) => {};
+
+  useEffect(() => {
+    setDataEnd(moment(dataApi?.data?.overtime?.date_end).format("YYYY-MM-DD"));
+    setRegistrationDate(
+      moment(dataApi?.data?.overtime?.registration_date).format("YYYY-MM-DD")
+    );
+    setDataStart(
+      moment(dataApi?.data?.overtime?.date_start).format("YYYY-MM-DD")
+    );
+  }, [dataApi]);
 
   /* START event Notify */
   const notifySuccess = () => {
@@ -48,24 +68,35 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
       theme: "light",
     });
   };
+  const notifyErrors = () => {
+    toast.error("Lịch đã được duyệt ko được cập nhât!", {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
   /* END event Notify */
+
+  const handleError = () => {
+    notifyErrors();
+  };
 
   /*START Api get details Employee */
   useEffect(() => {
     async function fetchData(idUpdate) {
       const data = await apiOvertime.getOvertimeId(idUpdate);
+      console.log();
       form.setFieldsValue({
         _id: data?.data?.overtime?._id,
         phone: data?.data?.overtime.phone,
         content: data?.data?.overtime.content,
-        isActive: data?.data?.overtime?.isActive ? "Đã duyệt" : "Chưa duyệt",
-        date_end: moment(data?.data?.overtime.date_end, "YYYY-MM-DD"),
-        registration_date: moment(
-          data?.data?.overtime.registration_date,
-          "YYYY-MM-DD"
-        ),
-        date_start: moment(data?.data?.overtime.date_start, "YYYY-MM-DD"),
       });
+      setStatus(data?.data?.overtime?.isActive); // Set the status value from the fetched data
       setDataApi(data);
     }
     if (idUpdate) {
@@ -77,6 +108,9 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
   /* START event update overtime */
   const onFinish = async (values) => {
     const dataForm = new FormData();
+    dataForm.append("registration_date", registrationDate);
+    dataForm.append("date_start", dateStart);
+    dataForm.append("date_end", dateEnd);
     Object.entries(values).forEach(([key, value]) => {
       dataForm.append(key, value);
     });
@@ -89,6 +123,14 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
     }
   };
   /* END event update overtime */
+
+  const [isReadOnly, setIsReadOnly] = useState(true);
+
+  // Hàm xử lý khi bấm vào nút "Test"
+  const handleTestButtonClick = () => {
+    setIsReadOnly(false);
+  };
+
   return (
     <>
       <h5 className="mb-4">
@@ -106,7 +148,6 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
             <Form.Item
               className="username label-group_form"
               label="Ngày đăng ký tăng ca"
-              name="registration_date"
               rules={[
                 {
                   required: true,
@@ -115,38 +156,23 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
                 },
               ]}
             >
-              <DatePicker
-                placeholder="Ngày đăng ký tăng ca"
-                style={{ width: "100%", height: "38px" }}
-                onChange={onChange}
+              <input
+                readOnly
+                style={{
+                  width: "100%",
+                  height: "38px",
+                  borderRadius: "6px",
+                  border: "1px solid #d9d9d9",
+                  padding: "4px 11px",
+                }}
+                type="date"
+                id="registration_date"
+                name="registration_date"
+                value={registrationDate}
+                onChange={onChangeRegistration}
               />
             </Form.Item>
           </Col>
-          {/* <Col md={4}>
-            <Form.Item
-              className="username label-group_form"
-              label="Tên dự án"
-              // name="name_project"
-              rules={[
-                {
-                  // required: true,
-                  message: "Vui lòng chọn tên dự án !",
-                  type: "string",
-                },
-              ]}
-            >
-              <Select
-                className="selection-group_form"
-                style={{ width: 120 }}
-                placeholder="Tên dự án"
-                onChange={handleChangeOvertimeProject}
-                options={[
-                  { value: "project_1", label: "Dự án 1" },
-                  { value: "project_2", label: "Dự án 2" },
-                ]}
-              />
-            </Form.Item>
-          </Col> */}
           <Col md={4}>
             <Form.Item
               className="username label-group_form"
@@ -154,13 +180,14 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
               name="isActive"
               rules={[
                 {
-                  // required: true,
+                  required: true,
                   message: "Vui lòng chọn trạng thái án !",
                   type: "string",
                 },
               ]}
             >
               <Select
+                disabled={isReadOnly}
                 className="selection-group_form"
                 style={{ width: 120 }}
                 placeholder="Trạng thái"
@@ -178,7 +205,7 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
             <Form.Item
               className="username label-group_form"
               label="Thời gian bắt đầu"
-              name="date_start"
+              // name="date_start"
               rules={[
                 {
                   required: true,
@@ -187,18 +214,32 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
                 },
               ]}
             >
-              <DatePicker
+              <input
+                readOnly
+                style={{
+                  width: "100%",
+                  height: "38px",
+                  borderRadius: "6px",
+                  border: "1px solid #d9d9d9",
+                  padding: "4px 11px",
+                }}
+                type="date"
+                id="date_start"
+                name="date_start"
+                value={dateStart}
+                onChange={onChangeStartDate}
+              />
+              {/* <DatePicker
                 style={{ width: "100%", height: "38px" }}
                 onChange={onChangeStartDate}
                 placeholder="Thời gian bắt đầu"
-              />
+              /> */}
             </Form.Item>
           </Col>
           <Col md={4}>
             <Form.Item
               className="username label-group_form"
               label="Thời gian kết thúc"
-              name="date_end"
               rules={[
                 {
                   required: true,
@@ -207,10 +248,20 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
                 },
               ]}
             >
-              <DatePicker
-                style={{ width: "100%", height: "38px" }}
+              <input
+                readOnly
+                style={{
+                  width: "100%",
+                  height: "38px",
+                  borderRadius: "6px",
+                  border: "1px solid #d9d9d9",
+                  padding: "4px 11px",
+                }}
+                type="date"
+                id="date_end"
+                name="date_end"
+                value={dateEnd}
                 onChange={onChangeEndDate}
-                placeholder="Thời gian kết thúc"
               />
             </Form.Item>
           </Col>
@@ -219,14 +270,17 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
               className="username label-group_form"
               label="Số điện thoại"
               name="phone"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng nhập số điện thoại !",
-                },
-              ]}
+              // rules={[
+              //   {
+              //     required: true,
+              //     message: "Vui lòng nhập số điện thoại và nhập đủ 10 số!",
+              //     pattern: /^[0-9]{10}$/,
+              //     type: "string",
+              //   },
+              // ]}
             >
               <Input
+                readOnly
                 placeholder="Số điện thoại"
                 className="inputUser input-group_form"
               />
@@ -239,15 +293,8 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
               className="username label-group_form"
               label="Lý do tăng ca"
               name="content"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng nhập lý do tăng ca",
-                  type: "string",
-                },
-              ]}
             >
-              <TextArea rows={4} />
+              <TextArea readOnly rows={4} />
             </Form.Item>
           </Col>
         </Row>
@@ -259,19 +306,55 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
             marginTop: "30px",
           }}
         >
-          <Button
-            type="primary"
-            htmlType="submit"
-            className="signInBtn"
-            style={{
-              width: "320px",
-              backgroundColor: "#262b40",
-              height: "38px",
-              fontSize: "16px",
-            }}
-          >
-            Cập nhật
-          </Button>
+          {!isReadOnly ? (
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="signInBtn"
+              style={{
+                width: "320px",
+                backgroundColor: "#262b40",
+                height: "38px",
+                fontSize: "16px",
+              }}
+            >
+              Cập nhật
+            </Button>
+          ) : status === false ? (
+            <div
+              style={{
+                width: "320px",
+                backgroundColor: "#262b40",
+                height: "38px",
+                fontSize: "16px",
+                color: "white",
+                borderRadius: "6px",
+                textAlign: "center",
+                lineHeight: "38px",
+                cursor: "pointer",
+              }}
+              onClick={handleTestButtonClick}
+            >
+              Cập nhật
+            </div>
+          ) : (
+            <div
+              style={{
+                width: "320px",
+                backgroundColor: "#262b40",
+                height: "38px",
+                fontSize: "16px",
+                color: "white",
+                borderRadius: "6px",
+                textAlign: "center",
+                lineHeight: "38px",
+                cursor: "pointer",
+              }}
+              onClick={handleError}
+            >
+              Cập nhật
+            </div>
+          )}
         </div>
       </Form>
     </>
