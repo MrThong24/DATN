@@ -1,8 +1,10 @@
 const express = require('express');
-const { createProject } = require('../controllers/project.controller');
-const upload = require('../middleware/uploadFile');
+const { createProject, getAllProjects, getProjectById, updateProject } = require('../controllers/project.controller');
 const router = express.Router();
 
-router.post('/create', upload.fields([{ name: 'image', maxCount: 4 }]), createProject);
+router.post('/create', createProject);
+router.get('/', getAllProjects);
+router.get('/:id', getProjectById);
+router.put('/:id', updateProject);
 
 module.exports = router;
