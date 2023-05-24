@@ -7,12 +7,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSignOutAlt,
   faTimes,
-  faHouse,
   faUser,
-  faClipboardCheck,
   faRegistered,
   faBriefcase,
-  faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 import { Nav, Badge, Image, Button, Navbar } from "@themesberg/react-bootstrap";
 import { Link } from "react-router-dom";

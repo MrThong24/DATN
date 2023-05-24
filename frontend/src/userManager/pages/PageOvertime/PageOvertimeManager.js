@@ -43,14 +43,14 @@ const PageOvertimeManager = () => {
   /* START columns table */
   const onChange = (pagination, filters, sorter, extra) => {};
   const columns = [
-    // {
-    //   title: "Tên dự án",
-    //   dataIndex: "account_employee",
-    //   sorter: {
-    //     compare: (a, b) => a.account_employee - b.account_employee,
-    //     multiple: 3,
-    //   },
-    // },
+    {
+      title: "Tên dự án",
+      dataIndex: "name_project",
+      sorter: {
+        compare: (a, b) => a.name_project - b.name_project,
+        multiple: 3,
+      },
+    },
 
     {
       title: "Ngày bắt đầu",
@@ -197,9 +197,10 @@ const PageOvertimeManager = () => {
   );
   const data = useMemo(() => {
     if (filteredOvertimes) {
+      console.log(filteredOvertimes);
       return filteredOvertimes?.map((item, index) => ({
         key: item._id,
-        // registration_date: moment(item.registration_date).format("DD/MM/YYYY"),
+        name_project: item?.name_project?.name_project,
         date_start: moment(item.date_start).format("DD/MM/YYYY"),
         date_end: moment(item.date_end).format("DD/MM/YYYY"),
         isActive: item.isActive,
@@ -213,7 +214,7 @@ const PageOvertimeManager = () => {
   const dataOnSearch = useMemo(() => {
     if (data) {
       return data?.filter((item) =>
-        item?.date_start?.toLowerCase()?.includes(valueSearch?.toLowerCase())
+        item?.name_project?.toLowerCase()?.includes(valueSearch?.toLowerCase())
       );
     }
     return [];
@@ -255,6 +256,9 @@ const PageOvertimeManager = () => {
         dataSource={dataOnSearch}
         onChange={onChange}
         showSorterTooltip={false}
+        pagination={{
+          pageSize: 5, // Số lượng bản ghi trên mỗi trang
+        }}
       />
       <Modal
         open={isModalOpen}

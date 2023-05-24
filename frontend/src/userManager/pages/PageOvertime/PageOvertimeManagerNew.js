@@ -5,6 +5,7 @@ import apiOvertime from "../../../api/apiOvertime";
 import TextArea from "antd/es/input/TextArea";
 import { toast } from "react-toastify";
 import LayoutPage from "../../layout/LayoutPage";
+import apiProduct from "../../../api/apiProduct";
 
 const PageOvertimeManagerNew = ({ onClose }) => {
   const onChange = (date, dateString) => {};
@@ -52,6 +53,26 @@ const PageOvertimeManagerNew = ({ onClose }) => {
   }, []);
   /* END get userInfo data from localStorage */
 
+  const [dataAPI, setDataAPI] = useState(null);
+  useEffect(() => {
+    async function fetchData() {
+      const data = await apiProduct.getAllProject();
+      setDataAPI(data);
+    }
+    fetchData();
+  }, []);
+
+  const optionsProject = dataAPI?.data
+    ?.filter(
+      (item) =>
+        item.statusOvertime === true &&
+        item.manager_project.some((manager) => manager._id === userId._id)
+    )
+    ?.map((item) => ({
+      value: item._id,
+      label: item.name_project,
+    }));
+
   /* START event create overtime */
   const onFinish = async (values) => {
     const {
@@ -67,7 +88,7 @@ const PageOvertimeManagerNew = ({ onClose }) => {
     dataForm.append("registration_date", registration_date);
     dataForm.append("phone", phone);
     dataForm.append("name_employee", userId._id);
-    // dataForm.append("name_project", name_project);
+    dataForm.append("name_project", name_project);
     dataForm.append("date_start", date_start);
     dataForm.append("date_end", date_end);
     dataForm.append("content", content);
@@ -81,6 +102,7 @@ const PageOvertimeManagerNew = ({ onClose }) => {
     }
   };
   /* END event create overtime */
+
   return (
     <LayoutPage title="Đăng ký tăng ca">
       <Form layout="vertical" className="row-col" onFinish={onFinish}>
@@ -123,10 +145,7 @@ const PageOvertimeManagerNew = ({ onClose }) => {
                 style={{ width: 120 }}
                 placeholder="Tên dự án"
                 onChange={handleChangeOvertimeProject}
-                options={[
-                  { value: "project_1", label: "Dự án 1" },
-                  { value: "project_2", label: "Dự án 2" },
-                ]}
+                options={optionsProject}
               />
             </Form.Item>
           </Col>
@@ -180,11 +199,14 @@ const PageOvertimeManagerNew = ({ onClose }) => {
               rules={[
                 {
                   required: true,
-                  message: "Vui lòng nhập số điện thoại !",
+                  message: "Vui lòng nhập số điện thoại và nhập đủ 10 số!",
+                  pattern: /^[0-9]{10}$/,
+                  type: "string",
                 },
               ]}
             >
               <Input
+                maxLength={10}
                 placeholder="Số điện thoại"
                 className="inputUser input-group_form"
               />

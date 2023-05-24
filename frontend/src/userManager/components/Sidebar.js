@@ -136,9 +136,13 @@ const Sidebar = () => {
               <NavItem
                 title="Đăng ký tăng ca"
                 icon={faRegistered}
-                link="/manager/manager"
+                link="/manager/overtime"
               />
-              <NavItem title="Công việc" icon={faBriefcase} />
+              <NavItem
+                title="Công việc"
+                link="/manager/project"
+                icon={faBriefcase}
+              />
             </Nav>
           </div>
         </SimpleBar>

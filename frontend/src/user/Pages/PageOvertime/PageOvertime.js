@@ -7,28 +7,51 @@ import { useNavigate } from "react-router";
 import PageOvertimeNew from "./PageOvertimeNew";
 import moment from "moment-timezone";
 import Search from "antd/es/transfer/search";
+import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 const PageOvertime = () => {
   const [dataAPI, setDataAPI] = useState(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [userId, setUserId] = useState([]);
+  const [isModalDelete, setIsModalDelete] = useState(false);
+
+  const [isId, setIsId] = useState(null);
 
   const [valueSearch, setValueSearch] = useState("");
 
+  const [userId, setUserId] = useState([]);
+
   const navigate = useNavigate();
 
+  /* START event notify */
+  const notifySuccess = () => {
+    toast.success(" Xóa tăng ca thành công !", {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+  /* END event notify */
+
   /* START columns table */
+  const onChange = (pagination, filters, sorter, extra) => {};
   const columns = [
-    // {
-    //   title: "Tên dự án",
-    //   dataIndex: "account_employee",
-    //   sorter: {
-    //     compare: (a, b) => a.account_employee - b.account_employee,
-    //     multiple: 3,
-    //   },
-    // },
+    {
+      title: "Tên dự án",
+      dataIndex: "name_project",
+      sorter: {
+        compare: (a, b) => a.name_project - b.name_project,
+        multiple: 3,
+      },
+    },
+
     {
       title: "Ngày bắt đầu",
       dataIndex: "date_start",
@@ -63,13 +86,11 @@ const PageOvertime = () => {
         let color = isActive === true ? "green" : "volcano";
         return (
           <Tag color={color} key={isActive}>
-            {isActive === "True" ? "Đã duyệt" : "Chờ duyệt"}
+            {isActive === true ? "Đã duyệt" : "Chưa duyệt"}
           </Tag>
         );
       },
-      defaultFilteredValue: ["false"],
     },
-
     {
       title: "Action",
       dataIndex: "",
@@ -91,24 +112,25 @@ const PageOvertime = () => {
             >
               Chi tiết
             </div>
-            {/* <Link
-              style={{
-                color: "white",
-                fontWeight: "600",
-                borderRadius: "6px",
-                backgroundColor: "#e00101",
-                padding: "5px 18px",
-              }}
-              onClick={handleDeleteUser(item.key)}
-            >
-              Xóa
-            </Link> */}
+            {!item.isActive && (
+              <Link
+                style={{
+                  color: "white",
+                  fontWeight: "600",
+                  borderRadius: "6px",
+                  backgroundColor: "#e00101",
+                  padding: "5px 18px",
+                }}
+                onClick={() => handleDeleteOvertime(item.key)}
+              >
+                Xóa
+              </Link>
+            )}
           </div>
         );
       },
     },
   ];
-  const onChange = (pagination, filters, sorter, extra) => {};
   /* END columns table */
 
   /* START event show model details */
@@ -125,6 +147,25 @@ const PageOvertime = () => {
     setIsModalOpen(false);
   };
   /* END event show model details */
+
+  /* START event delete overtime and show model delete */
+  const handleDeleteOvertime = (id) => {
+    setIsModalDelete(true);
+    setIsId(id);
+  };
+  const handleOkDelete = async () => {
+    try {
+      await apiOvertime.deleteOvertimeId(isId);
+      setIsModalDelete(false);
+      const newData = await apiOvertime.getAllOvertime();
+      setDataAPI(newData);
+      notifySuccess();
+    } catch (error) {}
+  };
+  const handleCancelDelete = () => {
+    setIsModalDelete(false);
+  };
+  /* END event delete overtime and show model delete */
 
   /* START get userInfo data from localStorage */
   useEffect(() => {
@@ -156,9 +197,10 @@ const PageOvertime = () => {
   );
   const data = useMemo(() => {
     if (filteredOvertimes) {
+      console.log(filteredOvertimes);
       return filteredOvertimes?.map((item, index) => ({
         key: item._id,
-        // registration_date: moment(item.registration_date).format("DD/MM/YYYY"),
+        name_project: item?.name_project?.name_project,
         date_start: moment(item.date_start).format("DD/MM/YYYY"),
         date_end: moment(item.date_end).format("DD/MM/YYYY"),
         isActive: item.isActive,
@@ -166,13 +208,13 @@ const PageOvertime = () => {
     }
     return [];
   }, [filteredOvertimes]);
-  /* END event call api to pass table  */
+  /* START event call api to pass table  */
 
   /* START event search */
   const dataOnSearch = useMemo(() => {
     if (data) {
       return data?.filter((item) =>
-        item?.date_start?.toLowerCase()?.includes(valueSearch?.toLowerCase())
+        item?.name_project?.toLowerCase()?.includes(valueSearch?.toLowerCase())
       );
     }
     return [];
@@ -214,6 +256,9 @@ const PageOvertime = () => {
         dataSource={dataOnSearch}
         onChange={onChange}
         showSorterTooltip={false}
+        pagination={{
+          pageSize: 5, // Số lượng bản ghi trên mỗi trang
+        }}
       />
       <Modal
         open={isModalOpen}
@@ -223,6 +268,13 @@ const PageOvertime = () => {
         width={1200}
       >
         <PageOvertimeNew onClose={handleSaveClose}></PageOvertimeNew>
+      </Modal>
+      <Modal
+        onOk={handleOkDelete}
+        onCancel={handleCancelDelete}
+        open={isModalDelete}
+      >
+        Bạn có muốn xóa ?
       </Modal>
     </LayoutPage>
   );

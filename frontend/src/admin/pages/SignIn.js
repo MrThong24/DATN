@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { Layout, Button, Form, Input, Checkbox } from "antd";
 import { EyeTwoTone, EyeInvisibleOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
 import "../../assets/styles/main.css";
 import "../../assets/styles/responsive.css";
 import "../../styles/signIn.css";
@@ -62,7 +61,7 @@ const SignIn = ({ location }) => {
     <>
       <div className="signIn">
         <Layout className="layout-default layout-signin">
-          <h2 className="title">Chào mừng trở lại!</h2>
+          <h2 className="title">Xin chào</h2>
           <Form
             onFinish={onFinish}
             layout="vertical"

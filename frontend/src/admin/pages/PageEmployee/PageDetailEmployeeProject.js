@@ -6,7 +6,7 @@ import { Avatar, List } from "antd";
 import apiProduct from "../../../api/apiProduct";
 import moment from "moment-timezone";
 
-const PageProjectId = () => {
+const PageDetailEmployeeProject = () => {
   const [dataApi, setDataApi] = useState(null);
 
   const { id } = useParams();
@@ -132,5 +132,4 @@ const PageProjectId = () => {
     </Card>
   );
 };
-
-export default PageProjectId;
+export default PageDetailEmployeeProject;

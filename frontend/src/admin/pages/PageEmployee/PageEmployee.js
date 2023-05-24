@@ -159,7 +159,6 @@ const PageEmployee = () => {
     }
     return [];
   }, [dataAPI]);
-
   /* END event call api to pass table  */
 
   /* START event search */
@@ -212,6 +211,9 @@ const PageEmployee = () => {
           dataSource={dataOnSearch}
           onChange={onChange}
           showSorterTooltip={false}
+          pagination={{
+            pageSize: 5, // Số lượng bản ghi trên mỗi trang
+          }}
         />
         <Modal
           open={isModalOpen}

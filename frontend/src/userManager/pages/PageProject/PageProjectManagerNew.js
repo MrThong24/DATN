@@ -10,7 +10,7 @@ import apiNotification from "../../../api/apiNotification";
 import moment from "moment-timezone";
 import { toast } from "react-toastify";
 
-const PageNewProject = ({ onClose }) => {
+const PageProjectManagerNew = ({ onClose }) => {
   const [dataEmployee, setDataEmployee] = useState([]);
   const [dataDepartment, setDataDepartment] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState([]);
@@ -137,7 +137,6 @@ const PageNewProject = ({ onClose }) => {
       // notifyError();
     }
   };
-
   return (
     <div>
       <h5>Tạo mới công việc</h5>
@@ -339,4 +338,4 @@ const PageNewProject = ({ onClose }) => {
   );
 };
 
-export default PageNewProject;
+export default PageProjectManagerNew;

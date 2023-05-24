@@ -156,11 +156,6 @@ const PageNewEmployee = ({ onClose }) => {
                   name="account_employee"
                   rules={[
                     {
-                      required: true,
-                      message: "Vui lòng nhập tài khoản!",
-                      type: "string",
-                    },
-                    {
                       validator: async (rule, value) => {
                         if (!value) {
                           throw new Error("Vui lòng nhập tài khoản!");
@@ -445,7 +440,8 @@ const PageNewEmployee = ({ onClose }) => {
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng nhập thông tin liện hệ khẩn cấp !",
+                      message: "Vui lòng nhập số điện thoại và nhập đủ 10 số!",
+                      pattern: /^[0-9]{10}$/,
                       type: "string",
                     },
                   ]}

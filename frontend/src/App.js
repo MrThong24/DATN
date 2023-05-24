@@ -26,6 +26,11 @@ import PageProfileManager from "./userManager/pages/PageProfile/PageProfileManag
 import PageOvertimeManager from "./userManager/pages/PageOvertime/PageOvertimeManager";
 import PageOvertimeManagerUpdate from "./userManager/pages/PageOvertime/PageOvertimeManagerUpdate";
 
+import PageProjectManager from "./userManager/pages/PageProject/PageProjectManager";
+import PageProjectManagerNew from "./userManager/pages/PageProject/PageProjectManagerNew";
+import PageDetailEmployeeProject from "./admin/pages/PageEmployee/PageDetailEmployeeProject";
+import PageProjectManagerDetails from "./userManager/pages/PageProject/PageProjectManagerDetails";
+
 // import history from "./utils/history";
 
 const SignIn = React.lazy(() => import("./admin/pages/SignIn"));
@@ -46,12 +51,11 @@ function App() {
   return (
     <Routes>
       <Route element={<LayoutUser />}>
-        <Route path="/" index element={<Profile />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile" index element={<Profile />} />
         <Route path="/overtime" element={<PageOvertime />} />
         <Route path="/overtime/:id" element={<PageOvertimeUpdate />} />
         <Route path="/project" element={<PageProject />} />
-        <Route path="/project/id" element={<PageProjectId />} />
+        <Route path="/project/:id" element={<PageProjectId />} />
       </Route>
 
       <Route element={<LayoutManager />}>
@@ -59,6 +63,12 @@ function App() {
         <Route
           path="/manager/overtime"
           element={<PageOvertimeManager />}
+        ></Route>
+
+        <Route path="/manager/project" element={<PageProjectManager />}></Route>
+        <Route
+          path="/manager/project/:id"
+          element={<PageProjectManagerDetails />}
         ></Route>
         <Route
           path="/manager/overtime/:id"
@@ -73,6 +83,10 @@ function App() {
           path="/dashboard/employee/:id"
           element={<PageDetailEmployee />}
         />
+        <Route
+          path="/dashboard/employee/:id/:id"
+          element={<PageDetailEmployeeProject />}
+        />
         <Route path="/dashboard/project" index element={<Project />} />
         <Route path="/dashboard/project/:id" index element={<ProjectId />} />
         <Route path="/dashboard/overtime" index element={<Overtime />} />
@@ -83,6 +97,7 @@ function App() {
         />
       </Route>
       <Route exact path="/sign-in" name="Login Page" element={<SignIn />} />
+      <Route path="/" name="Login Page" element={<SignIn />} />
     </Routes>
   );
 }

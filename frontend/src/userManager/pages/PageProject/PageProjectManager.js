@@ -6,8 +6,9 @@ import { Link, useNavigate } from "react-router-dom";
 import LayoutPage from "../../layout/LayoutPage";
 import moment from "moment-timezone";
 import Search from "antd/es/transfer/search";
+import PageProjectManagerNew from "./PageProjectManagerNew";
 
-const PageProject = () => {
+const PageProjectManager = () => {
   const [dataAPI, setDataAPI] = useState(null);
 
   const [userId, setUserId] = useState([]);
@@ -111,9 +112,26 @@ const PageProject = () => {
   ];
   const navigate = useNavigate();
 
+  const handleSaveClose = () => {
+    apiProduct.getAllProject().then((res) => {
+      setDataAPI(res);
+    });
+    setIsModalOpen(false);
+  };
+
   const showModalDetails = (id) => () => {
-    navigate(`/project/${id}`);
+    navigate(`/manager/project/${id}`);
     console.log(id);
+  };
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
   };
   /* START event call api to pass table  */
   useEffect(() => {
@@ -129,7 +147,7 @@ const PageProject = () => {
         ?.filter(
           (item) =>
             item.status === true &&
-            item.worker_project.some((manager) => manager._id === userId._id)
+            item.manager_project.some((manager) => manager._id === userId._id)
         )
         .map((item, index) => ({
           key: item._id,
@@ -164,12 +182,32 @@ const PageProject = () => {
   /* END event search */
   return (
     <LayoutPage title="Công việc">
-      <div
-        style={{ maxWidth: "420px", marginBottom: "58px" }}
-        className="search"
-      >
+      <div style={{ maxWidth: "420px" }} className="search">
         <Search placeholder="Tìm kiếm" onChange={onSearch} enterButton />
       </div>
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "end",
+          marginBottom: "20px",
+        }}
+      >
+        <Button
+          type="primary"
+          className="signInBtn"
+          onClick={showModal}
+          style={{
+            padding: "0px 20px",
+            backgroundColor: "#262b40",
+            height: "38px",
+            fontSize: "16px",
+          }}
+        >
+          Tạo mới
+        </Button>
+      </div>
+
       <Table
         columns={columns}
         dataSource={dataOnSearch}
@@ -179,8 +217,19 @@ const PageProject = () => {
           pageSize: 5, // Số lượng bản ghi trên mỗi trang
         }}
       />
+      <Modal
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        footer={null}
+        width={1200}
+      >
+        <PageProjectManagerNew
+          onClose={handleSaveClose}
+        ></PageProjectManagerNew>
+      </Modal>
     </LayoutPage>
   );
 };
 
-export default PageProject;
+export default PageProjectManager;

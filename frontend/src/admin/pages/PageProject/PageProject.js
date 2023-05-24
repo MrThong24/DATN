@@ -1,102 +1,89 @@
+import apiProduct from "../../../api/apiProduct";
 import { Card } from "@themesberg/react-bootstrap";
-import { Button, Modal, Table } from "antd";
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Button, Modal, Table, Tag } from "antd";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import ProjectNew from "./PageNewProject";
+import PageNewProject from "./PageNewProject";
+import Search from "antd/es/transfer/search";
 
 const PageProject = () => {
+  const [valueSearch, setValueSearch] = useState("");
+  const navigate = useNavigate();
+
+  const [dataAPI, setDataAPI] = useState(null);
+
+  const onChange = (pagination, filters, sorter, extra) => {};
   const columns = [
     {
       title: "Tên dự án",
       dataIndex: "name_project",
-    },
-    {
-      title: "Quản lý dự án",
-      dataIndex: "manager_project",
       sorter: {
-        compare: (a, b) => a.manager_project - b.manager_project,
+        compare: (a, b) => a.name_project - b.name_project,
         multiple: 3,
       },
     },
-
+    {
+      title: "Địa điểm làm việc",
+      dataIndex: "place_project",
+      sorter: {
+        compare: (a, b) => a.place_project - b.place_project,
+        multiple: 3,
+      },
+    },
     {
       title: "Trạng thái",
-      dataIndex: "archive",
-      render: (archive) => (
-        <span
-          style={{
-            color: archive === "Đang thực hiện" ? "green" : "red",
-            fontWeight: 600,
-          }}
-        >
-          {archive}
-        </span>
-      ),
+      dataIndex: "status",
+      filters: [
+        {
+          text: "Đã duyệt",
+          value: true,
+        },
+        {
+          text: "Chưa duyệt",
+          value: false,
+        },
+      ],
+      onFilter: (value, record) => record.status === value,
+      render: (_, { status }) => {
+        let color = status === true ? "volcano" : "green";
+        return (
+          <Tag color={color} key={status}>
+            {status === true ? "Đang thực hiện" : "Hoàn thành"}
+          </Tag>
+        );
+      },
     },
     {
       title: "Action",
       dataIndex: "",
       key: "x",
-      render: () => (
-        <>
-          <Link
-            to="id"
-            style={{
-              color: "white",
-              fontWeight: "600",
-              borderRadius: "6px",
-              backgroundColor: "rgb(18 34 139 / 92%)",
-              padding: "5px 18px",
-              marginRight: "10px",
-            }}
-          >
-            Chi tiết
-          </Link>
-          <Link
-            style={{
-              color: "white",
-              fontWeight: "600",
-              borderRadius: "6px",
-              backgroundColor: "#e00101",
-              padding: "5px 18px",
-            }}
-            // onClick={showModalDelete}
-          >
-            Xóa
-          </Link>
-        </>
-      ),
+      render: (_, item) => {
+        return (
+          <div style={{ display: "flex" }}>
+            <div
+              onClick={showModalDetails(item.key)}
+              style={{
+                color: "white",
+                fontWeight: "600",
+                borderRadius: "6px",
+                backgroundColor: "rgb(18 34 139 / 92%)",
+                padding: "5px 18px",
+                marginRight: "10px",
+                cursor: "pointer",
+              }}
+            >
+              Chi tiết
+            </div>
+          </div>
+        );
+      },
     },
   ];
-  const data = [
-    {
-      key: "1",
-      name_project: "Dự án thi công ở Đại Học sư phạm",
-      manager_project: "Bùi Chí Thông",
-      archive: "Đang thực hiện",
-    },
-    {
-      key: "2",
-      name_project: "Dự án thi công ở Đại Học sư phạm",
-      manager_project: "Bùi Chí Thông",
-      archive: "Đang thực hiện",
-    },
-    {
-      key: "3",
-      name_project: "Dự án thi công ở Đại Học sư phạm",
-      manager_project: "Bùi Chí Thông",
-      archive: "Đã hoàn thành",
-    },
-    {
-      key: "4",
-      name_project: "Dự án thi công ở Đại Học sư phạm",
-      manager_project: "Bùi Chí Thông",
-      archive: "Đã hoàn thành",
-    },
-  ];
-  const onChange = (pagination, filters, sorter, extra) => {
-    console.log("params", pagination, filters, sorter, extra);
+  const showModalDetails = (id) => () => {
+    navigate(`/dashboard/project/${id}`);
   };
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
     setIsModalOpen(true);
@@ -107,10 +94,55 @@ const PageProject = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
+  /* START event call api to pass table  */
+  useEffect(() => {
+    async function fetchData() {
+      const data = await apiProduct.getAllProject();
+      setDataAPI(data);
+    }
+    fetchData();
+  }, []);
+
+  const handleSaveClose = () => {
+    apiProduct.getAllProject().then((res) => {
+      setDataAPI(res);
+    });
+    setIsModalOpen(false);
+  };
+
+  const data = useMemo(() => {
+    if (dataAPI?.data) {
+      return dataAPI?.data?.map((item, index) => ({
+        key: item._id,
+        name_project: item.name_project,
+        place_project: item.place_project,
+        status: item.status,
+      }));
+    }
+    return [];
+  }, [dataAPI]);
+  /* END event call api to pass table  */
+
+  /* START event search */
+  const dataOnSearch = useMemo(() => {
+    if (data) {
+      return data?.filter((item) =>
+        item?.name_project?.toLowerCase()?.includes(valueSearch?.toLowerCase())
+      );
+    }
+    return [];
+  }, [data, valueSearch]);
+  const onSearch = (e) => {
+    setValueSearch(e.target.value);
+  };
+  /* END event search */
   return (
     <Card border="light" className="bg-white shadow-sm mb-4 mt-5">
       <Card.Body>
         <h5 className="mb-4">Quản lý công việc</h5>
+        <div style={{ maxWidth: "420px" }} className="search">
+          <Search placeholder="Tìm kiếm" onChange={onSearch} enterButton />
+        </div>
         <div
           style={{
             width: "100%",
@@ -134,19 +166,22 @@ const PageProject = () => {
           </Button>
         </div>
         <Table
+          dataSource={dataOnSearch}
           columns={columns}
-          dataSource={data}
           onChange={onChange}
           showSorterTooltip={false}
+          pagination={{
+            pageSize: 5, // Số lượng bản ghi trên mỗi trang
+          }}
         />
         <Modal
           open={isModalOpen}
           onOk={handleOk}
           onCancel={handleCancel}
           footer={null}
-          width={900}
+          width={1200}
         >
-          <ProjectNew></ProjectNew>
+          <PageNewProject onClose={handleSaveClose}></PageNewProject>
         </Modal>
       </Card.Body>
     </Card>

@@ -1,6 +1,6 @@
 import { Button, Form, Modal, Table, Tag } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+
 import { Card, Col, Row } from "@themesberg/react-bootstrap";
 import apiOvertime from "../../../api/apiOvertime";
 import moment from "moment-timezone";
@@ -20,6 +20,14 @@ const Overtime = () => {
   /* START columns table */
   const onChange = (pagination, filters, sorter, extra) => {};
   const columns = [
+    {
+      title: "Tên dự án",
+      dataIndex: "name_project",
+      sorter: {
+        compare: (a, b) => a.name_project - b.name_project,
+        multiple: 3,
+      },
+    },
     {
       title: "Mã nhân viên",
       dataIndex: "account_employee",
@@ -70,7 +78,7 @@ const Overtime = () => {
         let color = isActive === true ? "green" : "volcano";
         return (
           <Tag color={color} key={isActive}>
-            {isActive === "True" ? "Đã duyệt" : "Chưa duyệt"}
+            {isActive === true ? "Đã duyệt" : "Chưa duyệt"}
           </Tag>
         );
       },
@@ -104,6 +112,8 @@ const Overtime = () => {
   ];
   /* END columns table */
 
+  console.log(dataAPI);
+
   /* START event show model */
   const showModalDetails = (id) => () => {
     setIsModalOpen(true);
@@ -133,13 +143,14 @@ const Overtime = () => {
       setDataAPI(data);
     }
     fetchData();
-    console.log(data);
   }, []);
   const data = useMemo(() => {
     if (dataAPI) {
       return dataAPI?.data?.overtimes?.map((item, index) => ({
         key: item._id,
         name_employee: item?.name_employee?.name_employee,
+        name_project: item?.name_project?.name_project,
+
         registration_date: moment(item.registration_date).format("DD/MM/YYYY"),
         date_start: moment(item.date_start).format("DD/MM/YYYY"),
         date_end: moment(item.date_end).format("DD/MM/YYYY"),
@@ -180,6 +191,9 @@ const Overtime = () => {
             dataSource={dataOnSearch}
             onChange={onChange}
             showSorterTooltip={false}
+            pagination={{
+              pageSize: 5, // Số lượng bản ghi trên mỗi trang
+            }}
           />
           <Modal
             open={isModalOpen}
