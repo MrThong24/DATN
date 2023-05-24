@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { Overtime } = require('../models');
+const { Overtime, Project } = require('../models');
 const { User } = require('../models');
 // const httpStatus = require('http-status');
 
@@ -38,11 +38,17 @@ const createOvertime = asyncHandler(async (req, res) => {
 });
 
 const getAllOvertime = asyncHandler(async (req, res) => {
-  const overtimes = await Overtime.find().populate({
-    path: 'name_employee', // Trường tham chiếu đến bảng user trong model Overtime
-    select: 'name_employee account_employee', // Trường cần lấy từ bảng user
-    model: User, // Model để tham chiếu
-  });
+  const overtimes = await Overtime.find()
+    .populate({
+      path: 'name_employee', // Trường tham chiếu đến bảng user trong model Overtime
+      select: 'name_employee account_employee', // Trường cần lấy từ bảng user
+      model: User, // Model để tham chiếu
+    })
+    .populate({
+      path: 'name_project', // Trường tham chiếu đến bảng user trong model Overtime
+      select: 'name_project', // Trường cần lấy từ bảng user
+      model: Project, // Model để tham chiếu
+    });
   if (overtimes) {
     res.status(200).json({
       status: 200,
@@ -57,11 +63,17 @@ const getAllOvertime = asyncHandler(async (req, res) => {
 });
 
 const getOvertimeById = asyncHandler(async (req, res) => {
-  const overtime = await Overtime.findById(req.params.id).populate({
-    path: 'name_employee', // Trường tham chiếu đến bảng user trong model Overtime
-    select: 'name_employee', // Trường cần lấy từ bảng user
-    model: User, // Model để tham chiếu
-  });
+  const overtime = await Overtime.findById(req.params.id)
+    .populate({
+      path: 'name_employee', // Trường tham chiếu đến bảng user trong model Overtime
+      select: 'name_employee', // Trường cần lấy từ bảng user
+      model: User, // Model để tham chiếu
+    })
+    .populate({
+      path: 'name_project', // Trường tham chiếu đến bảng user trong model Overtime
+      select: 'name_project', // Trường cần lấy từ bảng user
+      model: Project, // Model để tham chiếu
+    });
   if (overtime) {
     res.status(200).json({
       status: 200,

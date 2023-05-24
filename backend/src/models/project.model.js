@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+
 const projectSchema = mongoose.Schema(
   {
     name_project: {
@@ -15,18 +15,35 @@ const projectSchema = mongoose.Schema(
     place_project: {
       type: String,
     },
-    department_project: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'department',
-    },
-    worker_project: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'user',
-    },
+    department_project: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'department',
+      },
+    ],
+    worker_project: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
+      },
+    ],
     reason_project: {
       type: String,
     },
-    image: [{ src: { type: String } }],
+    date_start: {
+      type: Date,
+    },
+    date_end: {
+      type: Date,
+    },
+    status: {
+      type: Boolean,
+      default: true,
+    },
+    statusOvertime: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

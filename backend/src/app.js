@@ -9,6 +9,7 @@ const cors = require('cors');
 const httpStatus = require('http-status');
 const user = require('./routers/user.router');
 const project = require('./routers/project.router');
+const notification = require('./routers/notification.router');
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use('/api/department', department);
 app.use('/api/overtime', overtime);
 app.use('/api/user', user);
 app.use('/api/project', project);
+app.use('/api/notification', notification);
 app.use('/', express.static('public/upload'));
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
