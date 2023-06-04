@@ -5,6 +5,7 @@ const {
   getOvertimeById,
   updateOvertime,
   deleteOvertime,
+  getEmployeeOvertimeCount,
 } = require('../controllers/overtime.controller');
 
 const router = express.Router();
@@ -14,6 +15,8 @@ router.post('/create', createOvertime);
 router.get('/all', getAllOvertime);
 
 router.get('/:id', getOvertimeById);
+
+router.get('/employees/:employeeId/overtime-count', getEmployeeOvertimeCount);
 
 router.put('/:id', updateOvertime);
 

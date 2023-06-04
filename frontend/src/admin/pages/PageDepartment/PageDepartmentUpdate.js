@@ -11,7 +11,6 @@ const PageDepartmentUpdate = ({ idUpdate, onClose }) => {
   useEffect(() => {
     async function fetchData(idUpdate) {
       const data = await apiDepartment.getDepartmentId(idUpdate);
-      console.log(data);
       form.setFieldsValue({ code: data.code, name: data.name });
     }
     if (idUpdate) {
@@ -27,6 +26,7 @@ const PageDepartmentUpdate = ({ idUpdate, onClose }) => {
     });
   };
   /* END event call api update department */
+
   return (
     <>
       <h5 className="mb-4">Tạo mới phòng ban</h5>

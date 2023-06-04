@@ -2,7 +2,7 @@ import apiOvertime from "../../../api/apiOvertime";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Card, Col, Row } from "@themesberg/react-bootstrap";
-import { Button, DatePicker, Form, Input, Select } from "antd";
+import { Button, Form, Input, Select } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import moment from "moment";
 import { toast } from "react-toastify";
@@ -18,6 +18,7 @@ const PageOvertimeUpdate = () => {
   const { id } = useParams();
 
   const [registrationDateValue, setRegistrationDateValue] = useState("");
+
   const onChangeRegistrationDate = (e) => {
     setRegistrationDateValue(e.target.value);
   };

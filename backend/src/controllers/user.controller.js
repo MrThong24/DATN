@@ -163,17 +163,20 @@ const updateUser = asyncHandler(async (req, res) => {
   if (user) {
     user.name_employee = req.body.name_employee || user.name_employee;
     user.account_employee = req.body.account_employee || user.account_employee;
-    user.password_employee = req.body.password_employee || user.password_employee;
+
     user.code_employee = req.body.code_employee || user.code_employee;
     user.address_employee = req.body.address_employee || user.address_employee;
     user.department_employee = req.body.department_employee || user.department_employee;
     user.position_employee = req.body.position_employee || user.position_employee;
+    user.gender_employee = req.body.gender_employee || user.gender_employee;
     user.cmnd_employee = req.body.cmnd_employee || user.cmnd_employee;
     user.phone_employee = req.body.phone_employee || user.phone_employee;
     user.current_residence = req.body.current_residence || user.current_residence;
     user.date_of_birth = req.body.date_of_birth || user.date_of_birth;
     user.wage_employee = req.body.wage_employee || user.wage_employee;
     user.status = req.body.status || user.status;
+
+    user.password_employee = req.body.password_employee || user.password_employee;
 
     if (req.file) {
       user.image = req.file.filename;

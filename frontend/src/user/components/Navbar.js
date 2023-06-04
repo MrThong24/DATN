@@ -35,7 +35,7 @@ const Navbarr = () => {
 
   const isNoti = useMemo(() => {
     return notifications?.some((item) => {
-      return !item?.list_user?.find(({ id_user }) => id_user === userId._id)
+      return !item?.list_user?.find(({ id_user }) => id_user === userId?._id)
         ?.status_notification;
     });
   }, [notifications, userId]);
@@ -44,7 +44,7 @@ const Navbarr = () => {
     const user =
       localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
     setUserId(JSON.parse(user));
-    fetchData(JSON.parse(user)._id);
+    fetchData(JSON.parse(user)?._id);
   }, []);
 
   const dispatch = useDispatch();
@@ -86,9 +86,9 @@ const Navbarr = () => {
                   <div style={{ maxHeight: "400px", overflow: "auto" }}>
                     {notifications?.map((notification) => (
                       <Notification
-                        key={notification._id}
+                        key={notification?._id}
                         notification={notification}
-                        userId={userId._id}
+                        userId={userId?._id}
                       />
                     ))}
                   </div>

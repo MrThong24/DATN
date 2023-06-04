@@ -17,12 +17,11 @@ const createOvertime = asyncHandler(async (req, res) => {
     content,
   });
 
-  // If the user is successfully created then send back user details in response
   if (overtime) {
     res.status(201).json({
       status: 200,
       data: {
-        name_employee: name_employee, // Chú ý đến cú pháp này
+        name_employee: name_employee,
         registration_date,
         phone,
         name_project,
@@ -133,10 +132,36 @@ const deleteOvertime = asyncHandler(async (req, res) => {
   }
 });
 
+const getEmployeeOvertimeCount = asyncHandler(async (req, res) => {
+  const { employeeId } = req.params;
+
+  // Find the employee by ID
+  const employee = await User.findById(employeeId);
+
+  if (!employee) {
+    res.status(404);
+    throw new Error('Employee not found');
+  }
+
+  // Count the number of overtime records for the employee
+  const overtimeCount = await Overtime.countDocuments({ name_employee: employee._id });
+
+  res.status(200).json({
+    status: 200,
+    data: {
+      employee: {
+        name: employee.name_employee,
+        overtimeCount: overtimeCount,
+      },
+    },
+  });
+});
+
 module.exports = {
   createOvertime,
   getAllOvertime,
   updateOvertime,
   getOvertimeById,
   deleteOvertime,
+  getEmployeeOvertimeCount,
 };

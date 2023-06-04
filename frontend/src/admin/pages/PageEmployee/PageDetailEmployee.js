@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Card, Col, Row } from "@themesberg/react-bootstrap";
 import ProfileCover from "../../../assets/img/profile-cover.jpg";
-import { Button, Form, Input, Select, Table, Tag } from "antd";
+import { Button, DatePicker, Form, Input, Select, Table, Tag } from "antd";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import apiUser from "../../../api/apiUser";
 import apiDepartment from "../../../api/apiDepartment";
@@ -11,6 +11,8 @@ import moment from "moment-timezone";
 import { Tabs } from "antd";
 import apiProduct from "../../../api/apiProduct";
 import apiOvertime from "../../../api/apiOvertime";
+import "../../../styles/general.css";
+
 const DetailEmployee = () => {
   const [image, setImage] = useState();
 
@@ -44,11 +46,29 @@ const DetailEmployee = () => {
 
   const [dataOvertime, setDataOvertime] = useState("");
 
+  const [selectGender, setSelectGender] = useState("");
+
+  const [countOvertime, setCountOvertime] = useState(null);
+
+  const navigate = useNavigate();
+
+  const [selectedMonth, setSelectedMonth] = useState(null);
+
+  const [filterDataMonth, setFilterDataMonth] = useState([]);
+
+  const [isDataTime, setIsDataTime] = useState(false);
+
+  const handleDateChange = (date, dateString) => {
+    setSelectedMonth(dateString);
+  };
+
   const handleChangeStatus = (value, label) => {
     setSelectStatus(label?.label);
   };
 
-  const handleChange = (value) => {};
+  const handleChangeGender = (value, label) => {
+    setSelectGender(label?.label);
+  };
 
   const handleChangeDepartment = (value, label) => {
     setSelectDepartment(label?.label);
@@ -57,6 +77,24 @@ const DetailEmployee = () => {
   const handleChangePosition = (value, label) => {
     setSelectedPositionLabel(label?.label);
   };
+
+  const onChangeEndDate = (e) => {
+    setDateOfBirth(e.target.value);
+  };
+
+  const handleTestButtonClick = () => {
+    setIsReadOnly(false);
+  };
+
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+  };
+
+  useEffect(() => {
+    setDateOfBirth(
+      moment(dataApi?.data?.overtime?.date_of_birth).format("YYYY-MM-DD")
+    );
+  }, [dataApi]);
 
   /* START event notify */
   const notifySuccess = () => {
@@ -93,11 +131,13 @@ const DetailEmployee = () => {
     }
     fetchData();
   }, []);
+  /* END api get all overtime */
 
   /*START Api get details Employee */
   useEffect(() => {
     async function fetchData(id) {
       const data = await apiUser.getUserId(id);
+      const overtime = await apiOvertime.getCountOvertimeById(id);
       form.setFieldsValue({
         _id: data._id,
         account_employee: data.account_employee,
@@ -113,24 +153,17 @@ const DetailEmployee = () => {
         date_of_birth: moment(data.date_of_birth, "YYYY-MM-DD"),
         wage_employee: data.wage_employee,
         status: data.status,
+        password_employee: "",
       });
+
       setDataApi(data);
+      setCountOvertime(overtime);
     }
     if (id) {
       fetchData(id);
     }
   }, [id]);
   /*END Api get details Employee */
-
-  const onChangeEndDate = (e) => {
-    setDateOfBirth(e.target.value);
-  };
-
-  useEffect(() => {
-    setDateOfBirth(
-      moment(dataApi?.data?.overtime?.date_of_birth).format("YYYY-MM-DD")
-    );
-  }, [dataApi]);
 
   /*START Hàm lấy dữ liệu Department */
   useEffect(() => {
@@ -155,6 +188,7 @@ const DetailEmployee = () => {
     values.image = imageAfter;
     values.position_employee = selectedPositionLabel;
     values.department_employee = selectDepartment;
+    values.gender_employee = selectGender;
     const dataForm = new FormData();
     dataForm.append("date_of_birth", dateOfBirth);
     Object.entries(values).forEach(([key, value]) => {
@@ -187,17 +221,7 @@ const DetailEmployee = () => {
   };
   /* END even sử lý image */
 
-  const handleTestButtonClick = () => {
-    setIsReadOnly(false);
-  };
-
-  const handleTabChange = (key) => {
-    setActiveTab(key);
-  };
-
-  /*  */
   const onChange = (pagination, filters, sorter, extra) => {};
-
   const columns = [
     {
       title: "Tên dự án",
@@ -233,19 +257,19 @@ const DetailEmployee = () => {
       filters: [
         {
           text: "Đang thực hiện",
-          value: true,
+          value: false,
         },
         {
           text: "Hoàn thành",
-          value: false,
+          value: true,
         },
       ],
       onFilter: (value, record) => record.status === value,
       render: (_, { status }) => {
-        let color = status === true ? "volcano" : "green";
+        let color = status === false ? "volcano" : "green";
         return (
           <Tag color={color} key={status}>
-            {status === true ? "Đang thực hiện" : "Hoàn thành"}
+            {status === false ? "Đang thực hiện" : "Hoàn thành"}
           </Tag>
         );
       },
@@ -264,11 +288,9 @@ const DetailEmployee = () => {
       ),
     },
   ];
-  const navigate = useNavigate();
 
   const showModalDetails = (id) => () => {
     navigate(`/dashboard/employee/${id}/${id}`);
-    console.log(id);
   };
 
   useEffect(() => {
@@ -284,8 +306,7 @@ const DetailEmployee = () => {
       return dataApiProject?.data
         ?.filter(
           (item) =>
-            (item.status === true &&
-              item.worker_project.some((manager) => manager._id === id)) ||
+            item.worker_project.some((manager) => manager._id === id) ||
             item.manager_project.some((manager) => manager._id === id)
         )
         .map((item, index) => ({
@@ -300,6 +321,22 @@ const DetailEmployee = () => {
     }
     return [];
   }, [dataApiProject]);
+
+  const handleFilter = () => {
+    const filteredData = data?.filter((item) => {
+      const startDate = moment(item?.date_start, "DD-MM-YYYY");
+      const endDate = moment(item?.date_end, "DD-MM-YYYY");
+      const selectedDate = moment(`${selectedMonth}`, "YYYY-MM");
+      return (
+        (selectedDate.isBefore(endDate, "month") &&
+          selectedDate.isSameOrAfter(startDate, "month")) ||
+        selectedDate.isSame(startDate, "month") ||
+        selectedDate.isSame(endDate, "month")
+      );
+    });
+    setFilterDataMonth(filteredData);
+    setIsDataTime(true);
+  };
 
   return (
     <Card border="light" className="bg-white shadow-sm mb-4 mt-5">
@@ -356,13 +393,6 @@ const DetailEmployee = () => {
                         className="username label-group_form"
                         label="Mật khẩu"
                         name="password_employee"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng nhập mật khẩu!",
-                            type: "string",
-                          },
-                        ]}
                       >
                         <Input
                           readOnly={isReadOnly}
@@ -389,26 +419,6 @@ const DetailEmployee = () => {
                         <Input
                           readOnly={isReadOnly}
                           placeholder="Tên tài khoản"
-                          className="inputUser input-group_form"
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Item
-                        className="username label-group_form"
-                        label="Mã nhân viên"
-                        name="account_employee"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng nhập mã nhân viên!",
-                            type: "string",
-                          },
-                        ]}
-                      >
-                        <Input
-                          readOnly={isReadOnly}
-                          placeholder="Mã nhân viên"
                           className="inputUser input-group_form"
                         />
                       </Form.Item>
@@ -536,7 +546,7 @@ const DetailEmployee = () => {
                           disabled={isReadOnly}
                           className="selection-group_form"
                           style={{ width: 120 }}
-                          onChange={handleChange}
+                          onChange={handleChangeGender}
                           placeholder="Giới tính"
                           options={[
                             { value: "male", label: "Nam" },
@@ -614,13 +624,6 @@ const DetailEmployee = () => {
                         className="username label-group_form"
                         label="CMND/CCCD"
                         name="cmnd_employee"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chỉ nhập số!",
-                            type: "number",
-                          },
-                        ]}
                       >
                         <Input
                           readOnly={isReadOnly}
@@ -634,15 +637,6 @@ const DetailEmployee = () => {
                         className="username label-group_form"
                         label="Điện thoại"
                         name="phone_employee"
-                        // rules={[
-                        //   {
-                        //     required: true,
-                        //     message:
-                        //       "Vui lòng nhập số điện thoại và nhập đủ 10 số!",
-                        //     pattern: /^[0-9]{10}$/,
-                        //     type: "string",
-                        //   },
-                        // ]}
                       >
                         <Input
                           readOnly={isReadOnly}
@@ -765,15 +759,44 @@ const DetailEmployee = () => {
             </Form>
           </TabPane>
           <TabPane tab={<span>Thông tin công việc</span>} key="2">
-            <Table
-              columns={columns}
-              dataSource={data}
-              onChange={onChange}
-              showSorterTooltip={false}
-              pagination={{
-                pageSize: 5, // Số lượng bản ghi trên mỗi trang
-              }}
-            />
+            <Row>
+              <Form.Item
+                className="username label-group_form"
+                label="Lọc theo tháng"
+              >
+                <DatePicker
+                  picker="month"
+                  placeholder="Chọn tháng"
+                  className="filter-picker"
+                  bordered={false}
+                  onChange={handleDateChange}
+                />
+                <Button style={{ width: "120px" }} onClick={handleFilter}>
+                  Lọc
+                </Button>
+              </Form.Item>
+            </Row>
+            {isDataTime && isDataTime === true ? (
+              <Table
+                columns={columns}
+                dataSource={filterDataMonth}
+                onChange={onChange}
+                showSorterTooltip={false}
+                pagination={{
+                  pageSize: 5, // Số lượng bản ghi trên mỗi trang
+                }}
+              />
+            ) : (
+              <Table
+                columns={columns}
+                dataSource={data}
+                onChange={onChange}
+                showSorterTooltip={false}
+                pagination={{
+                  pageSize: 5, // Số lượng bản ghi trên mỗi trang
+                }}
+              />
+            )}
           </TabPane>
           <TabPane tab={<span>Thống kê</span>} key="3">
             <Row>
@@ -785,15 +808,7 @@ const DetailEmployee = () => {
               <Col md={4}>
                 <h6>
                   Tổng số tăng ca :{" "}
-                  <span>
-                    {
-                      dataOvertime?.data?.overtimes?.filter(
-                        (item) =>
-                          item.isActive === true &&
-                          item?.name_employee?._id === id
-                      )?.length
-                    }
-                  </span>
+                  <span>{countOvertime?.data?.employee?.overtimeCount}</span>
                 </h6>
               </Col>
             </Row>

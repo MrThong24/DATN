@@ -14,7 +14,6 @@ const notificationSchema = mongoose.Schema(
       },
     ],
   },
-
   {
     timestamps: true,
   }

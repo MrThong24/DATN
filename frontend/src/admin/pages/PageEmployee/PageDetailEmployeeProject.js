@@ -10,6 +10,7 @@ const PageDetailEmployeeProject = () => {
   const [dataApi, setDataApi] = useState(null);
 
   const { id } = useParams();
+
   /*START Api get details Employee */
   useEffect(() => {
     async function fetchData(id) {
@@ -21,6 +22,7 @@ const PageDetailEmployeeProject = () => {
     }
   }, [id]);
   /*END Api get details Employee */
+
   return (
     <Card border="light" className="bg-white shadow-sm mb-4 mt-5">
       <Card.Body>

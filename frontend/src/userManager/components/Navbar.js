@@ -15,9 +15,9 @@ import {
 import { logout } from "../../actions/userActions";
 import { useDispatch } from "react-redux";
 import apiNotification from "../../api/apiNotification";
-import "../../styles/general.css";
 import { useNavigate } from "react-router";
 import { useMemo } from "react";
+import "../../styles/general.css";
 
 const Navbarr = () => {
   const [notifications, setNotifications] = useState();

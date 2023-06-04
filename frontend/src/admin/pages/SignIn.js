@@ -1,21 +1,21 @@
 import React, { useEffect } from "react";
-import { Layout, Button, Form, Input, Checkbox } from "antd";
+import { Layout, Button, Form, Input } from "antd";
 import { EyeTwoTone, EyeInvisibleOutlined } from "@ant-design/icons";
-import "../../assets/styles/main.css";
-import "../../assets/styles/responsive.css";
-import "../../styles/signIn.css";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../actions/userActions";
 import { ToastContainer, toast } from "react-toastify";
+import "../../assets/styles/main.css";
+import "../../assets/styles/responsive.css";
+import "../../styles/signIn.css";
 import "react-toastify/dist/ReactToastify.css";
-const SignIn = ({ location }) => {
+const SignIn = () => {
   const dispatch = useDispatch();
 
   const userLogin = useSelector((state) => state.userLogin);
 
   const { error, userInfo } = userLogin;
 
-  /* START column notify */
+  /* START event notify */
   const notifyError = () => {
     toast.error(" Tên tài khoản hoặc mật khẩu sai!", {
       position: "top-right",
@@ -28,7 +28,7 @@ const SignIn = ({ location }) => {
       theme: "light",
     });
   };
-  /* END column notify */
+  /* END event notify */
 
   useEffect(() => {
     if (userInfo) {
@@ -53,9 +53,11 @@ const SignIn = ({ location }) => {
     }
   }, [userInfo, error]);
 
+  /* START truyền dữ liệu */
   const onFinish = (values) => {
     dispatch(login(values.account_employee, values.password_employee));
   };
+  /* END truyền dữ liệu */
 
   return (
     <>

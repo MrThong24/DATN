@@ -1,9 +1,6 @@
 import axiosInstance from "./axios";
 
 const apiOvertime = {
-  //   getAllDepartment() {
-  //     return axiosInstance.get("overtime");
-  //   },
   async addOvertime(body) {
     const dataProduct = await axiosInstance.post("overtime/create", body);
     return dataProduct;
@@ -21,6 +18,12 @@ const apiOvertime = {
   },
   async updateOvertimeId(id, formData) {
     const overtime = await axiosInstance.put(`/overtime/${id}`, formData);
+    return overtime;
+  },
+  async getCountOvertimeById(id) {
+    const overtime = await axiosInstance.get(
+      `/overtime/employees/${id}/overtime-count`
+    );
     return overtime;
   },
 };

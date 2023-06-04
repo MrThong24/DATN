@@ -56,8 +56,8 @@ const PageProfile = () => {
               <Field title="Chức vụ" name={dataApi?.position_employee}></Field>
             </Row>
             <Row style={{ marginBottom: "30px" }}>
-              <Field title="Mã nhân viên" name={dataApi?.code_employee}></Field>
               <Field title="Quê quán" name={dataApi?.address_employee}></Field>
+              <Field title="Giới tính" name={dataApi?.gender_employee}></Field>
             </Row>
             <Row style={{ marginBottom: "30px" }}>
               <Field title="CMND/CCCD" name={dataApi?.cmnd_employee}></Field>
@@ -85,7 +85,6 @@ const PageProfile = () => {
                 title="Lương"
                 name={`${dataApi?.wage_employee} VNĐ`}
               ></Field>
-              <Field title="Giới tính" name={dataApi?.gender_employee}></Field>
             </Row>
           </Col>
           <Col xs={12} xl={4}>

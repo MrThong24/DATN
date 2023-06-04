@@ -16,22 +16,55 @@ const PageDetailProject = () => {
   const [form] = Form.useForm();
 
   const [dataAPI, setDataApi] = useState(null);
+
   const [dataEmployee, setDataEmployee] = useState([]);
+
   const [dataDepartment, setDataDepartment] = useState([]);
+
   const [selectedDepartment, setSelectedDepartment] = useState([]);
+
   const [selectedDepartments, setSelectedDepartments] = useState([]);
-  const [userManager, setUserManager] = useState([]);
-  const [userCN, setuserCN] = useState([]);
 
-  const [status, setStatus] = useState(false);
+  const [userWorkerProject, setUserWorkerProject] = useState([]);
 
-  const handleSelectManagerProject = (value, label) => {
-    setUserManager(value);
+  const [dateStart, setDateStart] = useState("");
+
+  const [dateEnd, setDateEnd] = useState("");
+
+  const [isReadOnly, setIsReadOnly] = useState(true);
+
+  const [status, setStatus] = useState();
+
+  const handleChangeStatus = (value, label) => {
+    setStatus(value);
   };
-  const handleSelectCNProject = (value, label) => {
-    setuserCN(value);
+
+  const handleSelectWorkerProject = (value, label) => {
+    setUserWorkerProject(value);
   };
 
+  const handleChangeDepartment = (value, item) => {
+    setSelectedDepartment(item);
+    setSelectedDepartments(value);
+  };
+
+  const handleComFirmError = () => {
+    notifyErrors();
+  };
+
+  const onChangeDateStart = (e) => {
+    setDateStart(e.target.value);
+  };
+
+  const onChangeDateEnd = (e) => {
+    setDateEnd(e.target.value);
+  };
+
+  const handleConfirmButton = () => {
+    setIsReadOnly(false);
+  };
+
+  /* START event Notify */
   const notifySuccess = () => {
     toast.success("Cập nhật lịch tăng ca thành công !", {
       position: "top-right",
@@ -44,7 +77,6 @@ const PageDetailProject = () => {
       theme: "light",
     });
   };
-
   const notifyErrors = () => {
     toast.error("Lịch đã được duyệt ko được cập nhât!", {
       position: "top-right",
@@ -58,10 +90,6 @@ const PageDetailProject = () => {
     });
   };
   /* END event Notify */
-
-  const handleError = () => {
-    notifyErrors();
-  };
 
   /* START event call api all employee and all department */
   useEffect(() => {
@@ -100,10 +128,6 @@ const PageDetailProject = () => {
     return [];
   }, [newDataStatus]);
 
-  const handleChangeDepartment = (value, item) => {
-    setSelectedDepartment(item);
-    setSelectedDepartments(value);
-  };
   const departmentFormat = useMemo(() => {
     if (dataDepartment.length > 0) {
       return dataDepartment?.map((department) => ({
@@ -135,7 +159,6 @@ const PageDetailProject = () => {
   useEffect(() => {
     async function fetchData(id) {
       const data = await apiProduct.getProjectId(id);
-      console.log(data);
       form.setFieldsValue({
         _id: data._id,
         name_project: data?.data?.name_project,
@@ -146,18 +169,18 @@ const PageDetailProject = () => {
         ),
         worker_project: data?.data?.worker_project.map((item) => item?._id),
         reason_project: data?.data?.reason_project,
-        status: data?.data?.status ? "true" : "false",
+        status: data?.data?.status === true ? "Hoàn thành" : "Đang thực hiện",
         statusOvertime: data?.data?.statusOvertime ? "true" : "false",
       });
-      const listDepartmenProject = data?.data?.department_project?.map(
+      const listDepartmentProject = data?.data?.department_project?.map(
         (item) => ({
           value: item._id,
           label: item.name,
         })
       );
 
-      setSelectedDepartment(listDepartmenProject);
-      setStatus(data?.data?.status); // Set the status value from the fetched data
+      setSelectedDepartment(listDepartmentProject);
+      setStatus(data?.data?.status);
       setDataApi(data);
     }
     if (id) {
@@ -166,31 +189,14 @@ const PageDetailProject = () => {
   }, [id]);
   /*END Api get details Employee */
 
-  const [date_start, setDateStart] = useState("");
-  const onChangeDateStart = (e) => {
-    setDateStart(e.target.value);
-  };
-
-  const [date_end, setDateEnd] = useState("");
-  const onChangeDateEnd = (e) => {
-    setDateStart(e.target.value);
-  };
-
   useEffect(() => {
-    setDateStart(
-      moment(dataAPI?.data?.overtime?.date_start).format("YYYY-MM-DD")
-    );
-    setDateEnd(moment(dataAPI?.data?.overtime?.date_end).format("YYYY-MM-DD"));
+    setDateStart(moment(dataAPI?.data?.date_start).format("YYYY-MM-DD"));
+    setDateEnd(moment(dataAPI?.data?.date_end).format("YYYY-MM-DD"));
   }, [dataAPI]);
 
   const onFinish = async (values) => {
-    const {
-      name_project,
-      place_project,
-      reason_project,
-      statusOvertime,
-      status,
-    } = values;
+    const { name_project, place_project, reason_project, statusOvertime } =
+      values;
     try {
       await apiProduct.updateProjectId(id, {
         name_project,
@@ -199,10 +205,10 @@ const PageDetailProject = () => {
         worker_project: [...worker_project],
         place_project,
         reason_project,
-        date_start: date_start,
-        date_end: date_end,
+        date_start: dateStart,
+        date_end: dateEnd,
         statusOvertime,
-        status,
+        status: status,
       });
 
       // onClose();
@@ -212,12 +218,6 @@ const PageDetailProject = () => {
     }
   };
 
-  const [isReadOnly, setIsReadOnly] = useState(true);
-
-  // Hàm xử lý khi bấm vào nút "Test"
-  const handleTestButtonClick = () => {
-    setIsReadOnly(false);
-  };
   return (
     <LayoutPage title="Chi tiết công việc">
       <Form
@@ -239,11 +239,19 @@ const PageDetailProject = () => {
                 },
               ]}
             >
-              <Input
-                disabled={isReadOnly}
-                placeholder="Tên dự án"
-                className="inputUser input-group_form"
-              />
+              {dataAPI?.data?.status === true ? (
+                <Input
+                  disabled={isReadOnly}
+                  placeholder="Tên dự án"
+                  className="inputUser input-group_form"
+                />
+              ) : (
+                <Input
+                  readOnly
+                  placeholder="Tên dự án"
+                  className="inputUser input-group_form"
+                />
+              )}
             </Form.Item>
           </Col>
           <Col md={6}>
@@ -295,11 +303,19 @@ const PageDetailProject = () => {
                 },
               ]}
             >
-              <Input
-                disabled={isReadOnly}
-                placeholder="Địa điểm công việc"
-                className="inputUser input-group_form"
-              />
+              {dataAPI?.data?.status === true ? (
+                <Input
+                  disabled={isReadOnly}
+                  placeholder="Địa điểm công việc"
+                  className="inputUser input-group_form"
+                />
+              ) : (
+                <Input
+                  readOnly
+                  placeholder="Địa điểm công việc"
+                  className="inputUser input-group_form"
+                />
+              )}
             </Form.Item>
           </Col>
         </Row>
@@ -358,7 +374,7 @@ const PageDetailProject = () => {
                 disabled={isReadOnly}
                 mode="multiple"
                 placeholder="Chọn nhân viên"
-                onChange={handleSelectCNProject}
+                onChange={handleSelectWorkerProject}
                 style={{
                   width: "100%",
                 }}
@@ -397,9 +413,10 @@ const PageDetailProject = () => {
                 className="selection-group_form"
                 style={{ width: 120 }}
                 placeholder="Chức vụ"
+                onChange={handleChangeStatus}
                 options={[
-                  { value: "true", label: "Đang thực hiện" },
-                  { value: "false", label: "Hoàn thành" },
+                  { value: "false", label: "Đang thực hiện" },
+                  { value: "true", label: "Hoàn thành" },
                 ]}
               />
             </Form.Item>
@@ -436,21 +453,39 @@ const PageDetailProject = () => {
               className="username label-group_form"
               label="Ngày bắt đầu"
             >
-              <input
-                disabled={isReadOnly}
-                style={{
-                  width: "100%",
-                  height: "38px",
-                  borderRadius: "6px",
-                  border: "1px solid #d9d9d9",
-                  padding: "4px 11px",
-                }}
-                type="date"
-                name="date_of_birth"
-                id="date_of_birth"
-                value={date_start}
-                onChange={onChangeDateStart}
-              />
+              {dataAPI?.data?.status === true ? (
+                <input
+                  disabled={isReadOnly}
+                  style={{
+                    width: "100%",
+                    height: "38px",
+                    borderRadius: "6px",
+                    border: "1px solid #d9d9d9",
+                    padding: "4px 11px",
+                  }}
+                  type="date"
+                  name="date_of_birth"
+                  id="date_of_birth"
+                  value={dateStart}
+                  onChange={onChangeDateStart}
+                />
+              ) : (
+                <input
+                  readOnly={isReadOnly}
+                  style={{
+                    width: "100%",
+                    height: "38px",
+                    borderRadius: "6px",
+                    border: "1px solid #d9d9d9",
+                    padding: "4px 11px",
+                  }}
+                  type="date"
+                  name="date_of_birth"
+                  id="date_of_birth"
+                  value={dateStart}
+                  onChange={onChangeDateStart}
+                />
+              )}
             </Form.Item>
           </Col>
           <Col md={4}>
@@ -458,21 +493,39 @@ const PageDetailProject = () => {
               className="username label-group_form"
               label="Ngày kết thúc"
             >
-              <input
-                disabled={isReadOnly}
-                style={{
-                  width: "100%",
-                  height: "38px",
-                  borderRadius: "6px",
-                  border: "1px solid #d9d9d9",
-                  padding: "4px 11px",
-                }}
-                type="date"
-                name="date_of_birth"
-                id="date_of_birth"
-                value={date_end}
-                onChange={onChangeDateEnd}
-              />
+              {dataAPI?.data?.status === true ? (
+                <input
+                  disabled={isReadOnly}
+                  style={{
+                    width: "100%",
+                    height: "38px",
+                    borderRadius: "6px",
+                    border: "1px solid #d9d9d9",
+                    padding: "4px 11px",
+                  }}
+                  type="date"
+                  name="date_of_birth"
+                  id="date_of_birth"
+                  value={dateEnd}
+                  onChange={onChangeDateEnd}
+                />
+              ) : (
+                <input
+                  readOnly={isReadOnly}
+                  style={{
+                    width: "100%",
+                    height: "38px",
+                    borderRadius: "6px",
+                    border: "1px solid #d9d9d9",
+                    padding: "4px 11px",
+                  }}
+                  type="date"
+                  name="date_of_birth"
+                  id="date_of_birth"
+                  value={dateEnd}
+                  onChange={onChangeDateEnd}
+                />
+              )}
             </Form.Item>
           </Col>
         </Row>
@@ -489,7 +542,11 @@ const PageDetailProject = () => {
                 },
               ]}
             >
-              <TextArea disabled={isReadOnly} rows={4} />
+              {dataAPI?.data?.status === true ? (
+                <TextArea disabled={isReadOnly} rows={4} />
+              ) : (
+                <TextArea readOnly rows={4} />
+              )}
             </Form.Item>
           </Col>
         </Row>
@@ -515,7 +572,7 @@ const PageDetailProject = () => {
             >
               Cập nhật
             </Button>
-          ) : status === true ? (
+          ) : status === false ? (
             <div
               style={{
                 width: "320px",
@@ -528,7 +585,7 @@ const PageDetailProject = () => {
                 lineHeight: "38px",
                 cursor: "pointer",
               }}
-              onClick={handleTestButtonClick}
+              onClick={handleConfirmButton}
             >
               Cập nhật
             </div>
@@ -545,7 +602,7 @@ const PageDetailProject = () => {
                 lineHeight: "38px",
                 cursor: "pointer",
               }}
-              onClick={handleError}
+              onClick={handleComFirmError}
             >
               Cập nhật
             </div>

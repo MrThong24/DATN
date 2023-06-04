@@ -23,7 +23,6 @@ const createNotification = asyncHandler(async (req, res) => {
 
 const getNotificationByUser = asyncHandler(async (req, res) => {
   const notifications = await Notification.find({ 'list_user.id_user': req.params.id_user }).populate('id_project');
-  console.log({ notifications });
   if (notifications) {
     res.status(201).json({
       status: 200,
@@ -37,7 +36,6 @@ const getNotificationByUser = asyncHandler(async (req, res) => {
 
 const updateNotificationReadStatus = asyncHandler(async (req, res) => {
   const { id_project, id_user } = req.body;
-  console.log({ id_project, id_user });
   const notification = await Notification.findOneAndUpdate(
     {
       id_project: id_project,

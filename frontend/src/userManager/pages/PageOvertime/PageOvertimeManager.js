@@ -197,7 +197,6 @@ const PageOvertimeManager = () => {
   );
   const data = useMemo(() => {
     if (filteredOvertimes) {
-      console.log(filteredOvertimes);
       return filteredOvertimes?.map((item, index) => ({
         key: item._id,
         name_project: item?.name_project?.name_project,

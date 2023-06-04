@@ -1,7 +1,7 @@
 import LayoutPage from "../../layout/LayoutPage";
 import React, { useEffect, useState } from "react";
 import { Col, Row } from "@themesberg/react-bootstrap";
-import { Button, Form, Input, Select, DatePicker, Modal } from "antd";
+import { Button, Form, Input, Select, DatePicker } from "antd";
 import apiOvertime from "../../../api/apiOvertime";
 import TextArea from "antd/es/input/TextArea";
 import { toast } from "react-toastify";

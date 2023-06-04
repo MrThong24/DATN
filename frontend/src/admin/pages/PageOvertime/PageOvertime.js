@@ -1,10 +1,8 @@
-import { Button, Form, Modal, Table, Tag } from "antd";
+import { Modal, Table, Tag } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
-
-import { Card, Col, Row } from "@themesberg/react-bootstrap";
+import { Card } from "@themesberg/react-bootstrap";
 import apiOvertime from "../../../api/apiOvertime";
 import moment from "moment-timezone";
-
 import PageOvertimeUpdate from "./PageOvertimeUpdate";
 import Search from "antd/es/transfer/search";
 
@@ -24,41 +22,24 @@ const Overtime = () => {
       title: "Tên dự án",
       dataIndex: "name_project",
       sorter: {
-        compare: (a, b) => a.name_project - b.name_project,
-        multiple: 3,
+        compare: (a, b) => a.name_project.localeCompare(b.name_project),
       },
     },
     {
       title: "Mã nhân viên",
       dataIndex: "account_employee",
-      sorter: {
-        compare: (a, b) => a.account_employee - b.account_employee,
-        multiple: 3,
-      },
     },
     {
       title: "Tên nhân viên",
       dataIndex: "name_employee",
-      sorter: {
-        compare: (a, b) => a.name_employee - b.name_employee,
-        multiple: 3,
-      },
     },
     {
       title: "Ngày bắt đầu",
       dataIndex: "date_start",
-      sorter: {
-        compare: (a, b) => a.date_start - b.date_start,
-        multiple: 3,
-      },
     },
     {
       title: "Ngày kết thúc",
       dataIndex: "date_end",
-      sorter: {
-        compare: (a, b) => a.date_end - b.date_end,
-        multiple: 2,
-      },
     },
     {
       title: "Trạng thái",
@@ -111,8 +92,6 @@ const Overtime = () => {
     },
   ];
   /* END columns table */
-
-  console.log(dataAPI);
 
   /* START event show model */
   const showModalDetails = (id) => () => {

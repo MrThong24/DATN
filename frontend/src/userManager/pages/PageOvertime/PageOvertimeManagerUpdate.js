@@ -18,6 +18,7 @@ const PageOvertimeManagerUpdate = () => {
   const { id } = useParams();
 
   const [registrationDateValue, setRegistrationDateValue] = useState("");
+
   const onChangeRegistrationDate = (e) => {
     setRegistrationDateValue(e.target.value);
   };
@@ -34,6 +35,18 @@ const PageOvertimeManagerUpdate = () => {
   const handleChangeOvertimeProject = (value, label) => {};
 
   const [isReadOnly, setIsReadOnly] = useState(true);
+
+  useEffect(() => {
+    setDateEndValue(
+      moment(dataApi?.data?.overtime?.date_end).format("YYYY-MM-DD")
+    );
+    setRegistrationDateValue(
+      moment(dataApi?.data?.overtime?.registration_date).format("YYYY-MM-DD")
+    );
+    setDateStartValue(
+      moment(dataApi?.data?.overtime?.date_start).format("YYYY-MM-DD")
+    );
+  }, [dataApi]);
 
   // Hàm xử lý khi bấm vào nút "Test"
   const handleTestButtonClick = () => {
@@ -129,7 +142,6 @@ const PageOvertimeManagerUpdate = () => {
       value: item._id,
       label: item.name_project,
     }));
-  console.log(optionsProject);
   /* START event update overtime */
   const onFinish = async (values) => {
     const dataForm = new FormData();
@@ -147,7 +159,7 @@ const PageOvertimeManagerUpdate = () => {
     }
   };
   /* END event update overtime */
-  console.log(dataApi);
+
   return (
     <Card border="light" className="bg-white shadow-sm mb-4 mt-5">
       <Card.Body>
@@ -253,11 +265,11 @@ const PageOvertimeManagerUpdate = () => {
             <Col md={4}>
               <Form.Item
                 className="username label-group_form"
-                label="Thời gian bắt đầu"
+                label="Thời gian kết thúc"
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng chọn thời gian bắt đầu !",
+                    message: "Vui lòng chọn thời gian kết thúc !",
                     type: "date",
                   },
                 ]}

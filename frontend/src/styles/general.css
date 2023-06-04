@@ -30,3 +30,11 @@ table {
 .new-notification {
   color: red;
 }
+.filter-picker {
+  width: 200px;
+  border-color: #cecece !important;
+  margin-right: 40px;
+}
+:where(.css-dev-only-do-not-override-mxhywb).ant-picker.ant-picker-borderless {
+  border-color: #cecece !important;
+}

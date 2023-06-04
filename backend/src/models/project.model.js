@@ -38,7 +38,7 @@ const projectSchema = mongoose.Schema(
     },
     status: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     statusOvertime: {
       type: Boolean,
