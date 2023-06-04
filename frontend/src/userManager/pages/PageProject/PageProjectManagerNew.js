@@ -1,5 +1,4 @@
-import { Button, DatePicker, Form, Input, Select, Upload } from "antd";
-import ImgCrop from "antd-img-crop";
+import { Button, DatePicker, Form, Input, Select } from "antd";
 import { Col, Row } from "@themesberg/react-bootstrap";
 import React, { useEffect, useMemo, useState } from "react";
 import TextArea from "antd/es/input/TextArea";
@@ -7,20 +6,28 @@ import apiUser from "../../../api/apiUser";
 import apiDepartment from "../../../api/apiDepartment";
 import apiProduct from "../../../api/apiProduct";
 import apiNotification from "../../../api/apiNotification";
-import moment from "moment-timezone";
 import { toast } from "react-toastify";
 
 const PageProjectManagerNew = ({ onClose }) => {
   const [dataEmployee, setDataEmployee] = useState([]);
+
   const [dataDepartment, setDataDepartment] = useState([]);
+
   const [selectedDepartment, setSelectedDepartment] = useState([]);
+
   const [selectedDepartments, setSelectedDepartments] = useState([]);
+
   const [userManager, setUserManager] = useState([]);
-  const [userCN, setuserCN] = useState([]);
+
+  const [userWorkerProject, setUserWorkerProject] = useState([]);
+
   const [selectedDateStart, setSelectedDateStart] = useState("");
+
   const [selectedDateEnd, setSelectedDateEnd] = useState("");
+
+  /* START event Notify */
   const notifySuccess = () => {
-    toast.success(" Tạo mới công việc thành công !", {
+    toast.success("Tạo mới công việc thành công !", {
       position: "top-right",
       autoClose: 2000,
       hideProgressBar: false,
@@ -31,19 +38,41 @@ const PageProjectManagerNew = ({ onClose }) => {
       theme: "light",
     });
   };
-  const onChangeDate = (date, dateString) => {
+  const notifyError = () => {
+    toast.error("Tạo mới công việc thất bại!", {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+  /* END event Notify */
+
+  const onChangeDate = (dateString) => {
     setSelectedDateStart(dateString);
   };
-  const onChangeDateEnd = (date, dateString) => {
+
+  const onChangeDateEnd = (dateString) => {
     setSelectedDateEnd(dateString);
   };
-  console.log(selectedDateStart);
-  const handleSelectManagerProject = (value, label) => {
+
+  const handleSelectManagerProject = (value) => {
     setUserManager(value);
   };
-  const handleSelectCNProject = (value, label) => {
-    setuserCN(value);
+
+  const handleSelectCNProject = (value) => {
+    setUserWorkerProject(value);
   };
+
+  const handleChangeDepartment = (value, item) => {
+    setSelectedDepartment(item);
+    setSelectedDepartments(value);
+  };
+
   /* START event call api all employee and all department */
   useEffect(() => {
     async function fetchData() {
@@ -76,11 +105,9 @@ const PageProjectManagerNew = ({ onClose }) => {
     }
     return [];
   }, [newDataStatus]);
+  /* END event filter position_employee and set value position_employee in select */
 
-  const handleChangeDepartment = (value, item) => {
-    setSelectedDepartment(item);
-    setSelectedDepartments(value);
-  };
+  /* START event filter department */
   const departmentFormat = useMemo(() => {
     if (dataDepartment.length > 0) {
       return dataDepartment?.map((department) => ({
@@ -90,6 +117,7 @@ const PageProjectManagerNew = ({ onClose }) => {
     }
     return [];
   }, [dataDepartment]);
+  /* END event filter department */
 
   const dataEmployeesByDe = useMemo(() => {
     if (selectedDepartment.length > 0) {
@@ -116,14 +144,14 @@ const PageProjectManagerNew = ({ onClose }) => {
           name_project,
           manager_project: [...userManager],
           department_project: [...selectedDepartments],
-          worker_project: [...userCN],
+          worker_project: [...userWorkerProject],
           place_project,
           reason_project,
           date_start: selectedDateStart,
           date_end: selectedDateEnd,
         })
         .then((data) => {
-          const list = [...userManager, ...userCN].map((item) => {
+          const list = [...userManager, ...userWorkerProject].map((item) => {
             return { id_user: item, status_notification: false };
           });
           apiNotification.createNotification({
@@ -134,7 +162,7 @@ const PageProjectManagerNew = ({ onClose }) => {
       onClose();
       notifySuccess();
     } catch (error) {
-      // notifyError();
+      notifyError();
     }
   };
   return (
@@ -236,14 +264,14 @@ const PageProjectManagerNew = ({ onClose }) => {
               name="worker_project"
               rules={[
                 {
-                  message: "Vui lòng chọn nhân viên!",
+                  message: "Vui lòng chọn công nhân xây dựng!",
                   type: "selector",
                 },
               ]}
             >
               <Select
                 mode="multiple"
-                placeholder="Chọn nhân viên"
+                placeholder="Công nhân xây dựng"
                 onChange={handleSelectCNProject}
                 style={{
                   width: "100%",

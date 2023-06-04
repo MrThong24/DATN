@@ -1,4 +1,4 @@
-import { Button, Form, Input, Select, Upload } from "antd";
+import { Button, Form, Input, Select } from "antd";
 import { Col, Row } from "@themesberg/react-bootstrap";
 import React, { useEffect, useMemo, useState } from "react";
 import TextArea from "antd/es/input/TextArea";
@@ -16,22 +16,42 @@ const PageProjectManagerDetails = () => {
   const [form] = Form.useForm();
 
   const [dataAPI, setDataApi] = useState(null);
+
   const [dataEmployee, setDataEmployee] = useState([]);
+
   const [dataDepartment, setDataDepartment] = useState([]);
+
   const [selectedDepartment, setSelectedDepartment] = useState([]);
-  const [selectedDepartments, setSelectedDepartments] = useState([]);
-  const [userManager, setUserManager] = useState([]);
-  const [userCN, setuserCN] = useState([]);
 
   const [status, setStatus] = useState(false);
 
-  const handleSelectManagerProject = (value, label) => {
-    setUserManager(value);
-  };
-  const handleSelectCNProject = (value, label) => {
-    setuserCN(value);
+  const [dateStart, setDateStart] = useState("");
+
+  const [dateEnd, setDateEnd] = useState("");
+
+  const [isReadOnly, setIsReadOnly] = useState(true);
+
+  const handleChangeDepartment = (value, item) => {
+    setSelectedDepartment(item);
   };
 
+  const handleComFirmError = () => {
+    notifyErrors();
+  };
+
+  const onChangeDateStart = (e) => {
+    setDateStart(e.target.value);
+  };
+
+  const onChangeDateEnd = (e) => {
+    setDateEnd(e.target.value);
+  };
+
+  const handleConfirmButton = () => {
+    setIsReadOnly(false);
+  };
+
+  /* START event Notify */
   const notifySuccess = () => {
     toast.success("Cập nhật lịch tăng ca thành công !", {
       position: "top-right",
@@ -44,7 +64,6 @@ const PageProjectManagerDetails = () => {
       theme: "light",
     });
   };
-
   const notifyErrors = () => {
     toast.error("Lịch đã được duyệt ko được cập nhât!", {
       position: "top-right",
@@ -58,10 +77,6 @@ const PageProjectManagerDetails = () => {
     });
   };
   /* END event Notify */
-
-  const handleError = () => {
-    notifyErrors();
-  };
 
   /* START event call api all employee and all department */
   useEffect(() => {
@@ -100,10 +115,6 @@ const PageProjectManagerDetails = () => {
     return [];
   }, [newDataStatus]);
 
-  const handleChangeDepartment = (value, item) => {
-    setSelectedDepartment(item);
-    setSelectedDepartments(value);
-  };
   const departmentFormat = useMemo(() => {
     if (dataDepartment.length > 0) {
       return dataDepartment?.map((department) => ({
@@ -135,7 +146,6 @@ const PageProjectManagerDetails = () => {
   useEffect(() => {
     async function fetchData(id) {
       const data = await apiProduct.getProjectId(id);
-      console.log(data);
       form.setFieldsValue({
         _id: data._id,
         name_project: data?.data?.name_project,
@@ -166,21 +176,9 @@ const PageProjectManagerDetails = () => {
   }, [id]);
   /*END Api get details Employee */
 
-  const [date_start, setDateStart] = useState("");
-  const onChangeDateStart = (e) => {
-    setDateStart(e.target.value);
-  };
-
-  const [date_end, setDateEnd] = useState("");
-  const onChangeDateEnd = (e) => {
-    setDateStart(e.target.value);
-  };
-
   useEffect(() => {
-    setDateStart(
-      moment(dataAPI?.data?.overtime?.date_start).format("YYYY-MM-DD")
-    );
-    setDateEnd(moment(dataAPI?.data?.overtime?.date_end).format("YYYY-MM-DD"));
+    setDateStart(moment(dataAPI?.data?.date_start).format("YYYY-MM-DD"));
+    setDateEnd(moment(dataAPI?.data?.date_end).format("YYYY-MM-DD"));
   }, [dataAPI]);
 
   const onFinish = async (values) => {
@@ -199,8 +197,8 @@ const PageProjectManagerDetails = () => {
         worker_project: [...worker_project],
         place_project,
         reason_project,
-        date_start: date_start,
-        date_end: date_end,
+        date_start: dateStart,
+        date_end: dateEnd,
         statusOvertime,
         status,
       });
@@ -212,12 +210,6 @@ const PageProjectManagerDetails = () => {
     }
   };
 
-  const [isReadOnly, setIsReadOnly] = useState(true);
-
-  // Hàm xử lý khi bấm vào nút "Test"
-  const handleTestButtonClick = () => {
-    setIsReadOnly(false);
-  };
   return (
     <LayoutPage title="Chi tiết công việc">
       <Form
@@ -358,7 +350,6 @@ const PageProjectManagerDetails = () => {
                 disabled={isReadOnly}
                 mode="multiple"
                 placeholder="Chọn nhân viên"
-                onChange={handleSelectCNProject}
                 style={{
                   width: "100%",
                 }}
@@ -448,7 +439,7 @@ const PageProjectManagerDetails = () => {
                 type="date"
                 name="date_of_birth"
                 id="date_of_birth"
-                value={date_start}
+                value={dateStart}
                 onChange={onChangeDateStart}
               />
             </Form.Item>
@@ -470,7 +461,7 @@ const PageProjectManagerDetails = () => {
                 type="date"
                 name="date_of_birth"
                 id="date_of_birth"
-                value={date_end}
+                value={dateEnd}
                 onChange={onChangeDateEnd}
               />
             </Form.Item>
@@ -515,7 +506,7 @@ const PageProjectManagerDetails = () => {
             >
               Cập nhật
             </Button>
-          ) : status === true ? (
+          ) : status === false ? (
             <div
               style={{
                 width: "320px",
@@ -528,7 +519,7 @@ const PageProjectManagerDetails = () => {
                 lineHeight: "38px",
                 cursor: "pointer",
               }}
-              onClick={handleTestButtonClick}
+              onClick={handleConfirmButton}
             >
               Cập nhật
             </div>
@@ -545,7 +536,7 @@ const PageProjectManagerDetails = () => {
                 lineHeight: "38px",
                 cursor: "pointer",
               }}
-              onClick={handleError}
+              onClick={handleComFirmError}
             >
               Cập nhật
             </div>

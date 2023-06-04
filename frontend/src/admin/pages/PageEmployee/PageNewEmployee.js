@@ -12,11 +12,17 @@ import "../../../styles/employee.css";
 import { toast } from "react-toastify";
 const PageNewEmployee = ({ onClose }) => {
   const [image, setImage] = useState();
+
   const [dataAPI, setDataAPI] = useState(null);
+
   const [dataAll, setDataAll] = useState(null);
+
   const [selectedPositionLabel, setSelectedPositionLabel] = useState("");
+
   const [selectedGender, setSelectedGender] = useState("");
+
   const [selectedDate, setSelectedDate] = useState("");
+
   const [selectedStatus, setSelectedStatus] = useState("Đang hoạt động");
 
   const handleChangeGender = (value, label) => {
@@ -432,26 +438,6 @@ const PageNewEmployee = ({ onClose }) => {
               </Col>
             </Row>
             <Row>
-              <Col md={6}>
-                <Form.Item
-                  className="username label-group_form"
-                  label="Thông tin liên hệ khẩn cấp"
-                  name="employee_contract"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập số điện thoại và nhập đủ 10 số!",
-                      pattern: /^[0-9]{10}$/,
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="Thông tin liên hệ khẩn cấp"
-                    className="inputUser input-group_form"
-                  />
-                </Form.Item>
-              </Col>
               <Col md={6}>
                 <Form.Item
                   className="username label-group_form"

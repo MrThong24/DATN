@@ -1,8 +1,7 @@
 import apiProduct from "../../../api/apiProduct";
-import { Card } from "@themesberg/react-bootstrap";
-import { Button, Modal, Table, Tag } from "antd";
+import { Table, Tag } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import LayoutPage from "../../layout/LayoutPage";
 import moment from "moment-timezone";
 import Search from "antd/es/transfer/search";
@@ -55,19 +54,19 @@ const PageProject = () => {
       filters: [
         {
           text: "Đang thực hiện",
-          value: true,
+          value: false,
         },
         {
           text: "Hoàn thành",
-          value: false,
+          value: true,
         },
       ],
       onFilter: (value, record) => record.status === value,
       render: (_, { status }) => {
-        let color = status === true ? "volcano" : "green";
+        let color = status === false ? "volcano" : "green";
         return (
           <Tag color={color} key={status}>
-            {status === true ? "Đang thực hiện" : "Hoàn thành"}
+            {status === false ? "Đang thực hiện" : "Hoàn thành"}
           </Tag>
         );
       },
@@ -113,7 +112,6 @@ const PageProject = () => {
 
   const showModalDetails = (id) => () => {
     navigate(`/project/${id}`);
-    console.log(id);
   };
   /* START event call api to pass table  */
   useEffect(() => {
@@ -126,10 +124,8 @@ const PageProject = () => {
   const data = useMemo(() => {
     if (dataAPI?.data) {
       return dataAPI?.data
-        ?.filter(
-          (item) =>
-            item.status === true &&
-            item.worker_project.some((manager) => manager._id === userId._id)
+        ?.filter((item) =>
+          item.worker_project.some((manager) => manager._id === userId._id)
         )
         .map((item, index) => ({
           key: item._id,

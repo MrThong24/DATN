@@ -2,54 +2,54 @@ import apiProduct from "../../../api/apiProduct";
 import { Card } from "@themesberg/react-bootstrap";
 import { Button, Modal, Table, Tag } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import ProjectNew from "./PageNewProject";
+import { useNavigate } from "react-router-dom";
 import PageNewProject from "./PageNewProject";
 import Search from "antd/es/transfer/search";
+import { CSVLink } from "react-csv";
+import moment from "moment";
 
 const PageProject = () => {
   const [valueSearch, setValueSearch] = useState("");
+
   const navigate = useNavigate();
 
   const [dataAPI, setDataAPI] = useState(null);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  /* START columns table */
   const onChange = (pagination, filters, sorter, extra) => {};
   const columns = [
     {
       title: "Tên dự án",
       dataIndex: "name_project",
       sorter: {
-        compare: (a, b) => a.name_project - b.name_project,
-        multiple: 3,
+        compare: (a, b) => a.name_project.localeCompare(b.name_project),
       },
     },
     {
       title: "Địa điểm làm việc",
       dataIndex: "place_project",
-      sorter: {
-        compare: (a, b) => a.place_project - b.place_project,
-        multiple: 3,
-      },
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
       filters: [
         {
-          text: "Đã duyệt",
+          text: "Hoàn thành",
           value: true,
         },
         {
-          text: "Chưa duyệt",
+          text: "Đang thực hiện",
           value: false,
         },
       ],
       onFilter: (value, record) => record.status === value,
       render: (_, { status }) => {
-        let color = status === true ? "volcano" : "green";
+        let color = status === false ? "volcano" : "green";
         return (
           <Tag color={color} key={status}>
-            {status === true ? "Đang thực hiện" : "Hoàn thành"}
+            {status === false ? "Đang thực hiện" : "Hoàn thành"}
           </Tag>
         );
       },
@@ -80,11 +80,20 @@ const PageProject = () => {
       },
     },
   ];
+  /* END columns table */
+
   const showModalDetails = (id) => () => {
     navigate(`/dashboard/project/${id}`);
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleSaveClose = () => {
+    apiProduct.getAllProject().then((res) => {
+      setDataAPI(res);
+    });
+    setIsModalOpen(false);
+  };
+
+  /* START event show model */
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -94,6 +103,8 @@ const PageProject = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
+  /* END event show model */
+
   /* START event call api to pass table  */
   useEffect(() => {
     async function fetchData() {
@@ -102,14 +113,6 @@ const PageProject = () => {
     }
     fetchData();
   }, []);
-
-  const handleSaveClose = () => {
-    apiProduct.getAllProject().then((res) => {
-      setDataAPI(res);
-    });
-    setIsModalOpen(false);
-  };
-
   const data = useMemo(() => {
     if (dataAPI?.data) {
       return dataAPI?.data?.map((item, index) => ({
@@ -136,6 +139,21 @@ const PageProject = () => {
     setValueSearch(e.target.value);
   };
   /* END event search */
+
+  const dataExcel = useMemo(() => {
+    if (dataAPI?.data) {
+      return dataAPI?.data?.map((item, index) => ({
+        Stt: index,
+        "Tên dự án": item.name_project,
+        "Vị trí làm việc": item.place_project,
+        "Trạng thái": item.status,
+        "Ngày bắt đầu": moment(item.date_start).format("DD-MM-YYYY"),
+        "Ngày kết thúc": moment(item.date_end).format("DD-MM-YYYY"),
+      }));
+    }
+    return [];
+  }, [dataAPI]);
+
   return (
     <Card border="light" className="bg-white shadow-sm mb-4 mt-5">
       <Card.Body>
@@ -149,6 +167,7 @@ const PageProject = () => {
             display: "flex",
             justifyContent: "end",
             marginBottom: "20px",
+            gap: "20px",
           }}
         >
           <Button
@@ -163,6 +182,20 @@ const PageProject = () => {
             }}
           >
             Tạo mới
+          </Button>
+          <Button
+            className="signInBtn"
+            style={{
+              padding: "0px 20px",
+              backgroundColor: "#262b40",
+              color: "#ffffff",
+              height: "38px",
+              fontSize: "16px",
+            }}
+          >
+            <CSVLink style={{ color: "#ffffff" }} data={dataExcel}>
+              Xuất file
+            </CSVLink>
           </Button>
         </div>
         <Table

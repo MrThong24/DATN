@@ -1,7 +1,7 @@
 import apiOvertime from "../../../api/apiOvertime";
 import React, { useEffect, useState } from "react";
 import { Col, Row } from "@themesberg/react-bootstrap";
-import { Button, DatePicker, Form, Input, Select } from "antd";
+import { Button, Form, Input, Select } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import moment from "moment-timezone";
 import { toast } from "react-toastify";
@@ -19,6 +19,16 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
 
   const [registrationDate, setRegistrationDate] = useState("");
 
+  const [isReadOnly, setIsReadOnly] = useState(true);
+
+  const handleConfirm = () => {
+    setIsReadOnly(false);
+  };
+
+  const handleConfirmError = () => {
+    notifyErrors();
+  };
+
   const onChangeStartDate = (e) => {
     setDataStart(e.target.value);
   };
@@ -31,8 +41,9 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
     setRegistrationDate(e.target.value);
   };
 
-  const handleChangeIsActive = (value) => {};
+  const handleChangeIsActive = (value, label) => {};
 
+  /*START get date Employee */
   useEffect(() => {
     setDataEnd(moment(dataApi?.data?.overtime?.date_end).format("YYYY-MM-DD"));
     setRegistrationDate(
@@ -42,6 +53,7 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
       moment(dataApi?.data?.overtime?.date_start).format("YYYY-MM-DD")
     );
   }, [dataApi]);
+  /*END get date Employee */
 
   /* START event Notify */
   const notifySuccess = () => {
@@ -82,15 +94,10 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
   };
   /* END event Notify */
 
-  const handleError = () => {
-    notifyErrors();
-  };
-
   /*START Api get details Employee */
   useEffect(() => {
     async function fetchData(idUpdate) {
       const data = await apiOvertime.getOvertimeId(idUpdate);
-      console.log();
       form.setFieldsValue({
         _id: data?.data?.overtime?._id,
         phone: data?.data?.overtime.phone,
@@ -123,13 +130,6 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
     }
   };
   /* END event update overtime */
-
-  const [isReadOnly, setIsReadOnly] = useState(true);
-
-  // Hàm xử lý khi bấm vào nút "Test"
-  const handleTestButtonClick = () => {
-    setIsReadOnly(false);
-  };
 
   return (
     <>
@@ -333,7 +333,7 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
                 lineHeight: "38px",
                 cursor: "pointer",
               }}
-              onClick={handleTestButtonClick}
+              onClick={handleConfirm}
             >
               Cập nhật
             </div>
@@ -350,7 +350,7 @@ const PageOvertimeUpdate = ({ idUpdate, onClose }) => {
                 lineHeight: "38px",
                 cursor: "pointer",
               }}
-              onClick={handleError}
+              onClick={handleConfirmError}
             >
               Cập nhật
             </div>

@@ -31,7 +31,6 @@ const errorHandler = (err, req, res, next) => {
   };
 
   if (config.env === 'development') {
-    console.log('err', err);
   }
 
   res.status(statusCode).send(response);

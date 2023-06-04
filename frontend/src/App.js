@@ -27,7 +27,6 @@ import PageOvertimeManager from "./userManager/pages/PageOvertime/PageOvertimeMa
 import PageOvertimeManagerUpdate from "./userManager/pages/PageOvertime/PageOvertimeManagerUpdate";
 
 import PageProjectManager from "./userManager/pages/PageProject/PageProjectManager";
-import PageProjectManagerNew from "./userManager/pages/PageProject/PageProjectManagerNew";
 import PageDetailEmployeeProject from "./admin/pages/PageEmployee/PageDetailEmployeeProject";
 import PageProjectManagerDetails from "./userManager/pages/PageProject/PageProjectManagerDetails";
 

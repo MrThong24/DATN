@@ -51,7 +51,6 @@ const PageOvertime = () => {
         multiple: 3,
       },
     },
-
     {
       title: "Ngày bắt đầu",
       dataIndex: "date_start",
@@ -197,7 +196,6 @@ const PageOvertime = () => {
   );
   const data = useMemo(() => {
     if (filteredOvertimes) {
-      console.log(filteredOvertimes);
       return filteredOvertimes?.map((item, index) => ({
         key: item._id,
         name_project: item?.name_project?.name_project,

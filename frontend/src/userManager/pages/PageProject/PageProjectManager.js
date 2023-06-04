@@ -13,6 +13,25 @@ const PageProjectManager = () => {
 
   const [userId, setUserId] = useState([]);
 
+  const navigate = useNavigate();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  /* START event show model */
+  const showModalDetails = (id) => () => {
+    navigate(`/manager/project/${id}`);
+  };
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+  /* END event show model */
+
   /* START get userInfo data from localStorage */
   useEffect(() => {
     const id =
@@ -56,19 +75,19 @@ const PageProjectManager = () => {
       filters: [
         {
           text: "Đang thực hiện",
-          value: true,
+          value: false,
         },
         {
           text: "Hoàn thành",
-          value: false,
+          value: true,
         },
       ],
       onFilter: (value, record) => record.status === value,
       render: (_, { status }) => {
-        let color = status === true ? "volcano" : "green";
+        let color = status === false ? "volcano" : "green";
         return (
           <Tag color={color} key={status}>
-            {status === true ? "Đang thực hiện" : "Hoàn thành"}
+            {status === false ? "Đang thực hiện" : "Hoàn thành"}
           </Tag>
         );
       },
@@ -110,7 +129,6 @@ const PageProjectManager = () => {
       ),
     },
   ];
-  const navigate = useNavigate();
 
   const handleSaveClose = () => {
     apiProduct.getAllProject().then((res) => {
@@ -119,20 +137,6 @@ const PageProjectManager = () => {
     setIsModalOpen(false);
   };
 
-  const showModalDetails = (id) => () => {
-    navigate(`/manager/project/${id}`);
-    console.log(id);
-  };
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
   /* START event call api to pass table  */
   useEffect(() => {
     async function fetchData() {
@@ -144,10 +148,8 @@ const PageProjectManager = () => {
   const data = useMemo(() => {
     if (dataAPI?.data) {
       return dataAPI?.data
-        ?.filter(
-          (item) =>
-            item.status === true &&
-            item.manager_project.some((manager) => manager._id === userId._id)
+        ?.filter((item) =>
+          item.manager_project.some((manager) => manager._id === userId._id)
         )
         .map((item, index) => ({
           key: item._id,

@@ -18,31 +18,21 @@ const PageEmployee = () => {
 
   /* START columns table */
   const onChange = (pagination, filters, sorter, extra) => {};
-
   const columns = [
     {
       title: "Tên tài khoản",
       dataIndex: "account_employee",
       sorter: {
-        compare: (a, b) => a.account_employee - b.account_employee,
-        multiple: 3,
+        compare: (a, b) => a.account_employee.localeCompare(b.account_employee),
       },
     },
     {
       title: "Tên công nhân",
       dataIndex: "name_employee",
-      sorter: {
-        compare: (a, b) => a.name_employee - b.name_employee,
-        multiple: 3,
-      },
     },
     {
       title: "Số điện thoại",
       dataIndex: "phone_employee",
-      sorter: {
-        compare: (a, b) => a.phone_employee - b.phone_employee,
-        multiple: 3,
-      },
     },
     {
       title: "Chức vụ",

@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import apiDepartment from "../../../api/apiDepartment";
 import { Card, Col, Row } from "@themesberg/react-bootstrap";
 import { Button, Form, Input, Modal, Table } from "antd";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import PageDepartmentUpdate from "./PageDepartmentUpdate";
+import apiDepartment from "../../../api/apiDepartment";
 import "../../../styles/general.css";
 import "react-toastify/dist/ReactToastify.css";
 import Search from "antd/es/transfer/search";
@@ -83,23 +83,19 @@ const PageDepartment = () => {
   const showModal = () => {
     setIsModalOpen(true);
   };
-
   const showModalUpdate = (id) => () => {
     setIsModalOpenUpdate(true);
     setIdUpdate(id);
   };
-
   const handleOk = () => {
     setIsModalOpen(false);
     setIsModalOpenUpdate(false);
   };
-
   const handleCancel = () => {
     setIsModalOpen(false);
     setIsModalOpenUpdate(false);
     setIdUpdate("");
   };
-
   const handleSaveClose = () => {
     setIsModalOpen(false);
     setIsModalOpenUpdate(false);
@@ -202,7 +198,7 @@ const PageDepartment = () => {
   /* START event call api create Department */
   const onFinish = async (values) => {
     try {
-      const data = await apiDepartment.addDepartment(values);
+      await apiDepartment.addDepartment(values);
       setIsModalOpen(false);
       apiDepartment.getAllDepartment().then((res) => {
         setDataAPI(res);
@@ -230,6 +226,7 @@ const PageDepartment = () => {
     setValueSearch(e.target.value);
   };
   /* END event search */
+
   return (
     <Card border="light" className="bg-white shadow-sm mb-4 mt-5">
       <Card.Body>
