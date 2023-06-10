@@ -10,6 +10,7 @@ import { CounterWidget } from "../components/Widgets";
 import apiUser from "../../api/apiUser";
 import apiProduct from "../../api/apiProduct";
 import apiOvertime from "../../api/apiOvertime";
+import Chart from "chart.js/auto";
 
 const Home = () => {
   const [dataAPI, setDataAPI] = useState([]);
@@ -20,6 +21,7 @@ const Home = () => {
 
   const [countOvertime, setCountOvertime] = useState([]);
 
+  const [apiAllEmployee, setApiAllEmployee] = useState([]);
   /* START event call api get all employee */
   useEffect(() => {
     async function fetchData() {
@@ -36,11 +38,86 @@ const Home = () => {
       setDataAPI(activeUsers);
       setDataAPIProject(dataProject);
       setCountOvertime(overtime);
+      setApiAllEmployee(data);
     }
     fetchData();
   }, []);
   /* END event call api get all employee */
 
+  useEffect(() => {
+    // Tạo biểu đồ sau khi dữ liệu đã được cập nhật
+    if (apiAllEmployee?.data?.length > 0) {
+      createChart();
+    }
+  }, [apiAllEmployee]);
+  const createChart = () => {
+    // Tạo một đối tượng Map để đếm số lượng nhân viên được tạo ra trong từng tháng
+    const employeeCountsByMonth = new Map();
+
+    // Lặp qua tất cả nhân viên và tính toán số lượng nhân viên theo tháng
+    apiAllEmployee?.data?.forEach((employee) => {
+      const createdAt = new Date(employee.createdAt);
+      const month = createdAt.getMonth(); // Lấy tháng từ createdAt
+
+      if (employeeCountsByMonth.has(month)) {
+        employeeCountsByMonth.set(month, employeeCountsByMonth.get(month) + 1);
+      } else {
+        employeeCountsByMonth.set(month, 1);
+      }
+    });
+
+    // Chuẩn bị dữ liệu cho biểu đồ
+    const labels = Array.from(employeeCountsByMonth.keys()).map((month) =>
+      getMonthName(month)
+    );
+    const counts = Array.from(employeeCountsByMonth.values());
+
+    // Lấy tham chiếu đến element canvas
+    const ctx = document.getElementById("myChart").getContext("2d");
+
+    // Tạo biểu đồ cột
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Số lượng nhân viên",
+            data: counts,
+            backgroundColor: "rgba(54, 162, 235, 0.5)",
+            borderColor: "rgba(54, 162, 235, 1)",
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  };
+
+  const getMonthName = (month) => {
+    const monthNames = [
+      "Tháng 1",
+      "Tháng 2",
+      "Tháng 3",
+      "Tháng 4",
+      "Tháng 5",
+      "Tháng 6",
+      "Tháng 7",
+      "Tháng 8",
+      "Tháng 9",
+      "Tháng 10",
+      "Tháng 11",
+      "Tháng 12",
+    ];
+
+    return monthNames[month];
+  };
   return (
     <>
       <Row className="justify-content-md-center mt-5">
@@ -81,6 +158,11 @@ const Home = () => {
             icon={faChartLine}
             iconColor="shape-secondary"
           />
+        </Col>
+      </Row>
+      <Row>
+        <Col xs={12} sm={6} xl={6} className="mb-4">
+          <canvas id="myChart"></canvas>
         </Col>
       </Row>
     </>

@@ -61,9 +61,11 @@ const getAllProjects = asyncHandler(async (req, res) => {
       model: Department,
     });
 
+  const reversedProjects = projects.reverse();
+
   res.status(200).json({
     status: 200,
-    data: projects,
+    data: reversedProjects,
   });
 });
 

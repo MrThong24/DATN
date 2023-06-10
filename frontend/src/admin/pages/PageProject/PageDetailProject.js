@@ -155,6 +155,8 @@ const PageDetailProject = () => {
     return [];
   }, [newUser, selectedDepartment]);
 
+  console.log(dataEmployeesByDe);
+
   /*START Api get details Employee */
   useEffect(() => {
     async function fetchData(id) {

@@ -62,69 +62,77 @@ const SignIn = () => {
   return (
     <>
       <div className="signIn">
-        <Layout className="layout-default layout-signin">
-          <h2 className="title">Xin chào</h2>
-          <Form
-            onFinish={onFinish}
-            layout="vertical"
-            className="row-col"
-            autoComplete="off"
-          >
-            <Form.Item
-              label="Tên tài khoản"
-              name="account_employee"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng nhập tên tài khoản!",
-                  type: "string",
-                },
-              ]}
+        <div class="Sign_in">
+          <div class="SignIn_left">
+            <img
+              src="https://images.unsplash.com/photo-1512403754473-27835f7b9984?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzR8fGJ1aWxkaW5nfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60"
+              alt=""
+            />
+          </div>
+          <div class="SignIn_right">
+            <Form
+              onFinish={onFinish}
+              layout="vertical"
+              className="row-col"
+              autoComplete="off"
+              style={{ marginTop: "100px" }}
             >
-              <Input placeholder="Tài khoản" autoComplete="off" />
-            </Form.Item>
-            <div className="password_container">
               <Form.Item
-                class="password_container"
-                label="Mật khẩu"
-                name="password_employee"
+                label="Tên tài khoản"
+                name="account_employee"
                 rules={[
                   {
                     required: true,
-                    message: "Please input your password!",
+                    message: "Vui lòng nhập tên tài khoản!",
                     type: "string",
                   },
                 ]}
               >
-                <Input.Password
-                  autoComplete="new-password"
-                  class="password_container"
-                  placeholder="Password"
-                  iconRender={(visible) =>
-                    visible ? (
-                      <EyeTwoTone className="iconEye" />
-                    ) : (
-                      <EyeInvisibleOutlined className="iconEye" />
-                    )
-                  }
-                />
+                <Input placeholder="Tài khoản" autoComplete="off" />
               </Form.Item>
-            </div>
-            <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                className="signInBtn"
-                style={{
-                  width: "80%",
-                }}
-              >
-                Đăng nhập
-              </Button>
-            </Form.Item>
-          </Form>
-          <ToastContainer />
-        </Layout>
+              <div className="password_container">
+                <Form.Item
+                  class="password_container"
+                  label="Mật khẩu"
+                  name="password_employee"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập mật khẩu!",
+                      type: "string",
+                    },
+                  ]}
+                >
+                  <Input.Password
+                    autoComplete="new-password"
+                    class="password_container"
+                    placeholder="Mật khẩu"
+                    iconRender={(visible) =>
+                      visible ? (
+                        <EyeTwoTone className="iconEye" />
+                      ) : (
+                        <EyeInvisibleOutlined className="iconEye" />
+                      )
+                    }
+                  />
+                </Form.Item>
+              </div>
+              <Form.Item>
+                <Button
+                  htmlType="submit"
+                  className="signInBtn"
+                  style={{
+                    width: "60%",
+                    marginTop: "20px",
+                  }}
+                >
+                  Đăng nhập
+                </Button>
+              </Form.Item>
+            </Form>
+          </div>
+        </div>
+        <ToastContainer />
       </div>
     </>
   );

@@ -296,6 +296,7 @@ const PageNewProject = ({ onClose }) => {
               ]}
             >
               <DatePicker
+                placeholder="Ngày bắt đầu"
                 style={{ width: "100%", height: "38px" }}
                 onChange={onChangeDate}
               />
@@ -315,6 +316,7 @@ const PageNewProject = ({ onClose }) => {
               ]}
             >
               <DatePicker
+                placeholder="Ngày kết thúc"
                 style={{ width: "100%", height: "38px" }}
                 onChange={onChangeDateEnd}
               />

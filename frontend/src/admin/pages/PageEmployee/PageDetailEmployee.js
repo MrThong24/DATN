@@ -335,7 +335,12 @@ const DetailEmployee = () => {
       );
     });
     setFilterDataMonth(filteredData);
-    setIsDataTime(true);
+    console.log(selectedMonth);
+    if (selectedMonth) {
+      setIsDataTime(true);
+    } else {
+      setIsDataTime(false);
+    }
   };
 
   return (
@@ -388,19 +393,6 @@ const DetailEmployee = () => {
                         />
                       </Form.Item>
                     </Col>
-                    <Col md={6}>
-                      <Form.Item
-                        className="username label-group_form"
-                        label="Mật khẩu"
-                        name="password_employee"
-                      >
-                        <Input
-                          readOnly={isReadOnly}
-                          placeholder="Mật khẩu mới"
-                          className="inputUser input-group_form"
-                        />
-                      </Form.Item>
-                    </Col>
                   </Row>
                   <Row>
                     <Col md={6}>
@@ -419,6 +411,19 @@ const DetailEmployee = () => {
                         <Input
                           readOnly={isReadOnly}
                           placeholder="Tên tài khoản"
+                          className="inputUser input-group_form"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col md={6}>
+                      <Form.Item
+                        className="username label-group_form"
+                        label="Mật khẩu"
+                        name="password_employee"
+                      >
+                        <Input
+                          readOnly={isReadOnly}
+                          placeholder="Mật khẩu mới"
                           className="inputUser input-group_form"
                         />
                       </Form.Item>

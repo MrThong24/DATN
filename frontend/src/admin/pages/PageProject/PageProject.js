@@ -207,15 +207,17 @@ const PageProject = () => {
             pageSize: 5, // Số lượng bản ghi trên mỗi trang
           }}
         />
-        <Modal
-          open={isModalOpen}
-          onOk={handleOk}
-          onCancel={handleCancel}
-          footer={null}
-          width={1200}
-        >
-          <PageNewProject onClose={handleSaveClose}></PageNewProject>
-        </Modal>
+        {isModalOpen && (
+          <Modal
+            open={isModalOpen}
+            onOk={handleOk}
+            onCancel={handleCancel}
+            footer={null}
+            width={1200}
+          >
+            <PageNewProject onClose={handleSaveClose}></PageNewProject>
+          </Modal>
+        )}
       </Card.Body>
     </Card>
   );

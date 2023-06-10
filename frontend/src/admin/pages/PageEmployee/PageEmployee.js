@@ -205,15 +205,17 @@ const PageEmployee = () => {
             pageSize: 5, // Số lượng bản ghi trên mỗi trang
           }}
         />
-        <Modal
-          open={isModalOpen}
-          onOk={handleOk}
-          onCancel={handleCancel}
-          footer={null}
-          width={1200}
-        >
-          <PageNewEmployee onClose={handleSaveClose}></PageNewEmployee>
-        </Modal>
+        {isModalOpen && (
+          <Modal
+            open={isModalOpen}
+            onOk={handleOk}
+            onCancel={handleCancel}
+            footer={null}
+            width={1200}
+          >
+            <PageNewEmployee onClose={handleSaveClose}></PageNewEmployee>
+          </Modal>
+        )}
       </Card.Body>
     </Card>
   );
