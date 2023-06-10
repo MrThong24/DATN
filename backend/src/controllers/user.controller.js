@@ -127,8 +127,9 @@ const getUsersCustomer = asyncHandler(async (req, res) => {
   const userCustomer = await User.find({ isAdmin: false });
 
   if (userCustomer) {
+    const reversedUserCustomer = userCustomer.reverse();
     res.json({
-      data: userCustomer,
+      data: reversedUserCustomer,
     });
   } else {
     res.status(404);

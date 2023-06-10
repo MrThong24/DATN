@@ -1,6 +1,9 @@
 .signIn {
-  width: 556px;
+  max-width: 1120px;
   margin: 0px auto;
+  display: flex;
+  align-items: center;
+  height: 100vh;
 }
 .layout-signin {
   margin-top: 40px;
@@ -14,6 +17,7 @@
   font-weight: 600;
   font-size: 20px;
   color: #171725;
+  margin-top: 80px;
 }
 .register {
   text-align: center;
@@ -60,7 +64,8 @@
   justify-content: end;
 }
 .signInBtn {
-  background: #355bc0;
+  background-color: rgb(38, 43, 64);
+  color: white;
   height: 42px;
   font-weight: 600;
   font-size: 16px;
@@ -103,4 +108,34 @@
 }
 .password_container .anticon-eye-invisible {
   line-height: 34px;
+}
+.Sign_in {
+  width: 100%;
+  display: flex;
+  border: 1px solid rgb(38, 43, 64);
+  border-radius: 10px;
+  background-color: white;
+}
+.SignIn_left {
+  width: 50%;
+  height: 100%;
+  position: relative;
+}
+.SignIn_right {
+  height: 100%;
+  width: 50%;
+  padding: 40px;
+}
+.Sign_in img {
+  height: 600px;
+  object-fit: cover;
+  width: 100%;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+.SignIn_left::before {
+  content: "";
+  position: absolute;
+  inset: 0px;
+  background-color: rgba(28, 28, 28, 0.65);
 }

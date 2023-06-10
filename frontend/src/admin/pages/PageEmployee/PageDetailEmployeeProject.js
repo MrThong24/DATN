@@ -53,7 +53,7 @@ const PageDetailEmployeeProject = () => {
             <h6>
               Trạng thái :{" "}
               <span style={{ fontWeight: 600 }}>
-                {dataApi?.data?.status === true
+                {dataApi?.data?.status === false
                   ? "Đang thực hiện"
                   : "Hoàn thành"}
               </span>

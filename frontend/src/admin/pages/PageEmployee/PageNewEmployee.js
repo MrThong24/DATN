@@ -25,11 +25,14 @@ const PageNewEmployee = ({ onClose }) => {
 
   const [selectedStatus, setSelectedStatus] = useState("Đang hoạt động");
 
+  const [selectDepartment, setSelectDepartment] = useState("");
+
   const handleChangeGender = (value, label) => {
     setSelectedGender(label?.label);
   };
-  const handleChangeDepartment = (value) => {};
-
+  const handleChangeDepartment = (value, label) => {
+    setSelectDepartment(label?.label);
+  };
   const handleChangePosition = (value, label) => {
     setSelectedPositionLabel(label?.label);
   };
@@ -113,7 +116,7 @@ const PageNewEmployee = ({ onClose }) => {
   const onFinish = async (values) => {
     const date = values.date_of_birth.format("YYYY-MM-DD");
     values.date_of_birth = date;
-    values.department_employee = options[0]?.label;
+    values.department_employee = selectDepartment;
     values.position_employee = selectedPositionLabel;
     values.gender_employee = selectedGender;
     values.date_of_birth = selectedDate;
@@ -162,6 +165,7 @@ const PageNewEmployee = ({ onClose }) => {
                   name="account_employee"
                   rules={[
                     {
+                      required: true,
                       validator: async (rule, value) => {
                         if (!value) {
                           throw new Error("Vui lòng nhập tài khoản!");
@@ -196,7 +200,7 @@ const PageNewEmployee = ({ onClose }) => {
                   ]}
                 >
                   <Input.Password
-                    placeholder="Password"
+                    placeholder="Mật khẩu"
                     autocomplete="new-password"
                     className="inputPass"
                     style={{ height: "38px" }}
@@ -216,25 +220,6 @@ const PageNewEmployee = ({ onClose }) => {
               <Col md={6}>
                 <Form.Item
                   className="username label-group_form"
-                  label="Mã nhân viên"
-                  name="code_employee"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập mã nhân viên!",
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="Mã nhân viên"
-                    className="inputUser input-group_form"
-                  />
-                </Form.Item>
-              </Col>
-              <Col md={6}>
-                <Form.Item
-                  className="username label-group_form"
                   label="Tên nhân viên"
                   name="name_employee"
                   rules={[
@@ -248,6 +233,26 @@ const PageNewEmployee = ({ onClose }) => {
                   <Input
                     placeholder="Tên nhân viên"
                     className="inputUser input-group_form"
+                  />
+                </Form.Item>
+              </Col>
+              <Col md={6}>
+                <Form.Item
+                  className="username label-group_form"
+                  label="Ngày sinh"
+                  name="date_of_birth"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập ngày sinh",
+                      type: "date",
+                    },
+                  ]}
+                >
+                  <DatePicker
+                    placeholder="Ngày sinh"
+                    style={{ width: "100%", height: "38px" }}
+                    onChange={onChangeDate}
                   />
                 </Form.Item>
               </Col>
@@ -433,27 +438,6 @@ const PageNewEmployee = ({ onClose }) => {
                     maxLength={10}
                     placeholder="Điện thoại"
                     className="inputUser input-group_form"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row>
-              <Col md={6}>
-                <Form.Item
-                  className="username label-group_form"
-                  label="Ngày sinh"
-                  name="date_of_birth"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập ngày sinh",
-                      type: "date",
-                    },
-                  ]}
-                >
-                  <DatePicker
-                    style={{ width: "100%", height: "38px" }}
-                    onChange={onChangeDate}
                   />
                 </Form.Item>
               </Col>
